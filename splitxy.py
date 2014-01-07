@@ -15,8 +15,8 @@ class SplitXYByTime(SplitXY):
     def __init__(self, split_time = '2013-06-00'):
         self._split_time = split_time
 
-    """ Everything before time is used for X, everything >= time for Y """
     def split(self, customer_records, t = None):
+        """ Everything before time is used for X, everything >= time for Y """
         if t == None:
             t = self._split_time
         customer_records_train = []
@@ -27,9 +27,9 @@ class SplitXYByPer(SplitXYByTime):
     def __init__(self, per = 0.25):
         self._per = per
 
-    """ Splits by percentage of orders (defined here as distinct times).
-        Assumes at least 2 distinct times given. """
     def split(self, customer_records, per = None):
+        """ Splits by percentage of orders (defined here as distinct times).
+            Assumes at least 2 distinct times given. """
         if per == None:
             per = self._per
         times = customer.get_unique_times(customer_records)
@@ -38,6 +38,15 @@ class SplitXYByPer(SplitXYByTime):
         return SplitXYByTime.split(self, customer_records, splitting_time)
 
 def get_split(splitter, customer_ids):
+    """ Input:
+            splitter: a sub-class of SplitXY),
+            customer_ids: a list of customer IDs to retrieve data for
+        Output:
+            X: a list of lists, with each internal list corresponding to
+               one customer and showing the orders available to mine data
+            Y: a list of lists, with each internal list corresponding to
+               one customer and listing the products that the customer
+               bought within the second split of the data """
     X, Y = [], []
     for customer_id in customer_ids:
         customer_records = customer.get_records(customer_id)
@@ -48,6 +57,9 @@ def get_split(splitter, customer_ids):
         # print customer_id
         # print(splitter.split(customer_records))
         x_orders_set, y_row = splitter.split(customer_records)
+        pprint(customer_records)
+        pprint(x_orders_set)
+        pprint(y_row)
         X.append(x_orders_set)
         Y.append(y_row)
     return X, Y
@@ -67,10 +79,10 @@ def main():
     # pprint(splitter.split(customer.get_records(1)))
     #pprint(splitter.split(customer.get_records(270081)))
 
-    cst = (int(customer_id)
-           for customer_id
-           in common.load_file(args.customers_file))
-    # cst = [322273,198150]
+    # cst = (int(customer_id)
+    #        for customer_id
+    #        in common.load_file(args.customers_file))
+    cst = [1,5]
 
     get_split(splitter, cst)
 
