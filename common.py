@@ -39,6 +39,11 @@ def verbose_iter(iter, n=10000):
         if (i+1) % n == 0:
             print_err(i+1, 'lines done')
 
+def load_file(filename):
+    with open(filename, 'rb') as f:
+        for line in f:
+            yield line
+
 def partition(pred, iter):
     t = []
     f = []
