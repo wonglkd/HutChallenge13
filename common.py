@@ -44,6 +44,10 @@ def load_file(filename):
         for line in f:
             yield line
 
+def load_customers(filename, prefix=''):
+    with open(filename, 'rb') as f:
+        return [prefix+cid.strip() for cid in f if cid.strip() != ""]
+
 def partition(pred, iter):
     t = []
     f = []

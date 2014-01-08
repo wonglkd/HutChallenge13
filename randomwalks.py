@@ -90,8 +90,10 @@ def main():
 	common.print_err("Loaded")
 
 	# customers_to_predict = customers
-	with open(customers_to_predict_filename, 'rb') as f:
-		customers_to_predict = ['c'+cid.strip() for cid in f if cid.strip() != ""]
+
+	# with open(customers_to_predict_filename, 'rb') as f:
+	# 	customers_to_predict = ['c'+cid.strip() for cid in f if cid.strip() != ""]
+	customers_to_predict = common.load_customers(customers_to_predict_filename, 'c')
 
 	walk_length = 2
 	no_of_walks = 20 # 100
