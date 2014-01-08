@@ -113,3 +113,9 @@ GROUP BY customer;
 
 SELECT customer, COUNT(DISTINCT t) as torders FROM rec
 GROUP BY customer; 
+-----------
+.mode csv
+.output customer_product_counts.csv
+SELECT 'c' || customer, 'p' || product, COUNT(*) as weight FROM rec
+GROUP BY customer, product;
+.output stdout
