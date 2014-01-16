@@ -120,7 +120,7 @@ def main():
     parser.add_argument('-p', '--predict-feat')
     parser.add_argument('-l', '--load-model')
     parser.add_argument('-c', '--customer-ids', default='all-customers-used.out')
-    parser.add_argument('-s', '--save-probas', default='rf-probas.sol')
+    parser.add_argument('-s', '--save-probas', default='rf.probas')
 
     # parser.add_argument('--removefeat', nargs='+', default=[])
     # parser.add_argument('--cv', action='store_true')

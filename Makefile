@@ -1,7 +1,7 @@
 
 ROOT_DIR = ../../
 
-all: rf-probas.sol
+all: rf.probas
 
 x-orders.pkl y-list.csv x-customers-used.out x-skipped.out: $(ROOT_DIR)splitxy.py $(ROOT_DIR)$(CUSTOMERS_FILE)
 	python $^ -x x-orders.pkl -y y-list.csv -c x-customers-used.out 2> x-skipped.out
@@ -21,7 +21,7 @@ model.pkl: $(ROOT_DIR)train.py x-features.pkl y-list.csv
 analyse: $(ROOT_DIR)train.py model.pkl
 	python $< -l model.pkl -a
 
-rf-probas.sol: $(ROOT_DIR)train.py all-features.pkl model.pkl
+rf.probas: $(ROOT_DIR)train.py all-features.pkl model.pkl
 	python $< -p all-features.pkl -l model.pkl -s $@
 
 clean:
