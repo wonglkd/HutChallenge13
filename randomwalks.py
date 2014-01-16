@@ -108,17 +108,13 @@ def predict(customers_to_predict, customers, G, G_w, walk_length, no_of_walks, N
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('edges_filename', default='gen/customer_product_counts.csv')
+    parser.add_argument('edges_filename', default='interim/customer_product_counts.csv')
     parser.add_argument('customers_filename', default='data/publicChallenge.csv')
     parser.add_argument('-o', '--output', default='rwalks.probas')
     parser.add_argument('-l', '--walk-length', default=2, type=int)
     parser.add_argument('-w', '--no-walks', default=20, type=int)
     parser.add_argument('-N', '--top-n', default=20, type=int)
     args = parser.parse_args()
-
-    # edges_filename = "gen/customer_product_counts_sample.csv"
-    # customers_to_predict_filename = "gen/customers-0.02.txt"
-    # customers_to_predict_filename = "data/publicChallenge.csv"
 
     # customers, products, G = nx_load_data(edges_filename)
     common.print_err("Loading...")

@@ -38,7 +38,7 @@ def load_ids(c_ids_filename, add_prefix=''):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("customers_file", nargs='?', default="gen/customers-100.txt")
+    parser.add_argument("customers_file", nargs='?', default="interim/customers-100.txt")
     parser.add_argument("-o", "--orders-out", default='all-orders.pkl')
     parser.add_argument("-c", "--customers-out", nargs='?', default="customers-all-used.out")
     args = parser.parse_args()

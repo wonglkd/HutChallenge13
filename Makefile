@@ -1,7 +1,7 @@
 
 ROOT_DIR = ../../
 
-PRODUCT_CUSTOMER_EDGES_FILE = gen/customer_product_counts.csv
+PRODUCT_CUSTOMER_EDGES_FILE = interim/customer_product_counts.csv
 
 all: rf.probas
 

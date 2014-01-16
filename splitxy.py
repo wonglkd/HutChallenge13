@@ -83,9 +83,9 @@ def load_y(filename):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("customers_file", nargs='?', default="gen/customers-100.txt")
-    parser.add_argument("-x", "--x-orders-out", nargs='?', default="gen/x-orders.pkl")
-    parser.add_argument("-y", "--y-out", nargs='?', default="gen/y-list.csv")
+    parser.add_argument("customers_file", nargs='?', default="interim/customers-100.txt")
+    parser.add_argument("-x", "--x-orders-out", nargs='?', default="x-orders.pkl")
+    parser.add_argument("-y", "--y-out", nargs='?', default="y-list.csv")
     parser.add_argument("-c", "--customers-out", nargs='?', default="customers-split-used.out")
     
     args = parser.parse_args()
