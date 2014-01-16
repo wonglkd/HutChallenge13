@@ -1,5 +1,7 @@
+import argparse
 import common
 import customer
+import splitxy
 from pprint import pprint
 from collections import Counter
 import dateutil.parser
@@ -8,8 +10,9 @@ from sklearn import preprocessing
 from sklearn.feature_extraction import DictVectorizer
 from sklearn.pipeline import FeatureUnion
 from sklearn.externals import joblib
+from sklearn.base import BaseEstimator
 
-class Feature:
+class Feature(BaseEstimator):
     def generate_feat(self, orders):
         raise NotImplementedError
 
@@ -27,17 +30,32 @@ class Feature:
     def fit_transform(self, X, y=None):
         self.fit(X)
         return self.transform(X)
-    
-class FeatCountry(Feature):
-    def __init__(self):
-        self.vectorizer = DictVectorizer()
 
-    def fit_transform(self, X, y=None):
-        newX = []
+    def get_feature_names(self):
+        return ['x']
+
+class FeatureFindClasses(Feature):
+    def __init__(self, classes_to_count=None):
+        self.classes = classes_to_count
+        self._classes_fixed = classes_to_count is not None
+ 
+    def get_feature_names(self):
+        return ["C({pid})".format(pid=p) for p in self.classes]
+
+class FeatCountry(FeatureFindClasses):
+    def fit(self, X, y=None):
+        if self._classes_fixed:
+            return
+        seen = set()
         for orders in X:
-            newX.append({'country':
-                Counter([row[3] for row in orders]).most_common(1)[0][0]})
-        return self.vectorizer.fit_transform(newX)
+            for row in orders:
+                seen.add(row[3])
+        self.classes = list(seen)
+
+    def transform(self, X, y=None):
+        return [[int(c == customer.get_most_common_country(orders))
+                for c in self.classes]
+                for orders in X]
 
 class FeatNOrders(Feature):
     """ No. of order entries """
@@ -62,39 +80,34 @@ class FeatTimeSinceLastOrder(Feature):
         maxtime = dateutil.parser.parse(max(a[2] for a in orders))
         return (maxtime-datetime.datetime(1970,1,1)).total_seconds()
 
-class FeatIndividualProductBinary(Feature):
-    """ Whether product X was bought by customer, for multiple X """
-
-    def __init__(self):
-        self.lb = preprocessing.LabelBinarizer()
-
-    def fit(self, X, y=None):
-        raise NotImplementedError
-
-    def fit_transform(self, X, y=None):
-        self._newX = []
-        for orders in X:
-            self._newX.append(list(set(row[1] for row in orders)))
-        return self.lb.fit_transform(self._newX)
-
-class FeatIndividualProductCount(Feature):
-    def __init__(self, products_to_count = []):
-        self.products = products_to_count
-
+class FeatIndividualProductCount(FeatureFindClasses):
     def fit(self, X, y=None):
         """ Find out the breadth of the product space """
+        if self._classes_fixed:
+            return
         seen = set()
         for orders in X:
             for row in orders:
                 seen.add(row[1])
-        self.products = list(seen)
+        self.classes = list(seen)
     
     def transform(self, X):
         newX = []
         for orders in X:
-            productCount = Counter(row[1] for row in orders)
-            newX.append([productCount[p] for p in self.products])
+            product_count = Counter(row[1] for row in orders)
+            newX.append([product_count[p] for p in self.classes])
         return newX
+
+class FeatIndividualProductBinary(FeatIndividualProductCount):
+    """ Whether product X was bought by customer, for multiple X """
+
+    def transform(self, X):
+        newX = []
+        for orders in X:
+            products_ordered = frozenset(row[1] for row in orders)
+            newX.append([int(p in products_ordered) for p in self.classes])
+        return newX
+
 
 def get_combined():
     feature_generators = [
@@ -104,27 +117,50 @@ def get_combined():
         ('fg_Country', FeatCountry()),
         ('fg_TimeSinceLastOrder', FeatTimeSinceLastOrder()),
         ('fg_IndividualProductBinary', FeatIndividualProductBinary()),
-        ('fg_IndividualProductCount', FeatIndividualProductCount())
+        # ('fg_IndividualProductCount', FeatIndividualProductCount())
     ]
-    return FeatureUnion(feature_generators, n_jobs=-1)
     # Disabled for the moment, lb/get_feature_names() does not play well with parallelisation
     # return FeatureUnion(feature_generators, n_jobs=-1)
     return FeatureUnion(feature_generators)
 
+def load(features_filename):
+    """ Returns a tuple of (features, feature_names) """
+    return joblib.load(features_filename)
+
+def save(X, feat_names, features_filename):
+    joblib.dump((X, feat_names), features_filename)
+
 def main():
-    customers = [1,2,100,270074,270081]
-    customers = [1,2,5]
+    parser = argparse.ArgumentParser()
+    parser.add_argument("x_orders_files", nargs='*', default=["x-orders.pkl"])
+    parser.add_argument("-o", "--output-features-files", nargs='*', default=["x-features.pkl"])
+    args = parser.parse_args()
+
+    # customers = [1,2,100,270074,270081]
+    # customers = [1,2,5]
     
     #pprint(splitter.split(customer.get_records(270074)))
     #pprint(splitter.split(customer.get_records(100)))
     # pprint((customer.get_records(3)))
     #pprint(splitter.split(customer.get_records(270081)))
-    cr = [customer.get_records(i) for i in customers]
+    # cr = [customer.get_records(i) for i in customers]
+
+    if len(args.x_orders_files) != len(args.output_features_files):
+        raise Exception("len(x_orders_files) != len(output_features_files)")
+
+    crs = [list(splitxy.load_x(o_filename)) for o_filename in args.x_orders_files]
+
     combined = get_combined()
-    features_file = 'gen/features.pkl'
-    X = combined.fit_transform(cr)
-    joblib.dump(X, features_file)
-#     ft = FeatCountry()
+
+    combined.fit(common.flatten_lists(crs))
+    feat_names = combined.get_feature_names()
+
+    for cr, output_feat_file in zip(crs, args.output_features_files):
+        X = combined.transform(cr)
+        common.print_err("{} examples by {} features".format(*X.shape))
+        save(X, feat_names, output_feat_file)
+
+    # ft = FeatCountry()
 #     ft = FeatNOrders()
 #     ft = FeatNTransactions()
     # ft = FeatTimeSinceLastOrder()
