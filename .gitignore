@@ -3,6 +3,14 @@ data/old
 db/*.sqlite3
 tmp/
 
+.DS_Store
+
+# Generated files
+*.pkl
+*.npy
+*.tmp
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
