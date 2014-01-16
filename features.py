@@ -107,6 +107,9 @@ def get_combined():
         ('fg_IndividualProductCount', FeatIndividualProductCount())
     ]
     return FeatureUnion(feature_generators, n_jobs=-1)
+    # Disabled for the moment, lb/get_feature_names() does not play well with parallelisation
+    # return FeatureUnion(feature_generators, n_jobs=-1)
+    return FeatureUnion(feature_generators)
 
 def main():
     customers = [1,2,100,270074,270081]
