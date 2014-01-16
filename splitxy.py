@@ -2,6 +2,8 @@ import argparse
 import common
 import math
 import customer
+import csv
+import json
 from collections import Counter
 from pprint import pprint
 
@@ -37,7 +39,19 @@ class SplitXYByPer(SplitXYByTime):
         splitting_time = times[len(times) - times_to_take]
         return SplitXYByTime.split(self, customer_records, splitting_time)
 
-def get_split(splitter, customer_ids):
+def get_split_i(splitter, customer_ids):
+    for customer_id, customer_records in customer.get_mult_records_i(customer_ids):
+        if len(customer.get_unique_times(customer_records)) < 2:
+            common.print_err("Skipped:", customer_id)
+            continue
+        x_orders_set, y_row = splitter.split(customer_records)
+        yield customer_id, x_orders_set, y_row
+        # print customer_id
+        # pprint(customer_records)
+        # pprint(x_orders_set)
+        # pprint(y_row)
+
+def get_split(*args, **kwargs):
     """ Input:
             splitter: a sub-class of SplitXY),
             customer_ids: a list of customer IDs to retrieve data for
@@ -46,31 +60,36 @@ def get_split(splitter, customer_ids):
                one customer and showing the orders available to mine data
             Y: a list of lists, with each internal list corresponding to
                one customer and listing the products that the customer
-               bought within the second split of the data """
-    X, Y = [], []
-    for customer_id in customer_ids:
-        customer_records = customer.get_records(customer_id)
-        if len(customer.get_unique_times(customer_records)) < 2:
-            common.print_err("Skipped:", customer_id)
-            continue
-        # pprint(customer_records)
-        # print customer_id
-        # print(splitter.split(customer_records))
-        x_orders_set, y_row = splitter.split(customer_records)
-        pprint(customer_records)
-        pprint(x_orders_set)
-        pprint(y_row)
-        X.append(x_orders_set)
-        Y.append(y_row)
-    return X, Y
+               bought within the second split of the data
+            c_ids: a list of customer ids that correspond to X and Y """
+    c_ids, X, Y = [], [], []
+    for c_id, x_orders_set_i, y_row_i in get_split_i(*args, **kwargs):
+        X.append(x_orders_set_i)
+        Y.append((c_id, y_row_i))
+        c_ids.append(c_id)
+    return X, Y, c_ids
+
+def save(X, X_filename, Y, Y_filename, c_ids, c_ids_filename):
+    customer.save_records(X, X_filename)
+    common.save_csv_i(Y_filename, Y)
+    customer.save_ids(c_ids, c_ids_filename)
+
+def load_x(filename):
+    return common.load_pickle(filename)
+
+def load_y(filename):
+    for _, row in common.load_csv_i(filename):
+        yield json.loads(row)
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("customers_file", nargs='?', default="gen/customers-100.txt")
+    parser.add_argument("-x", "--x-orders-out", nargs='?', default="gen/x-orders.pkl")
+    parser.add_argument("-y", "--y-out", nargs='?', default="gen/y-list.csv")
+    parser.add_argument("-c", "--customers-out", nargs='?', default="customers-split-used.out")
+    
     args = parser.parse_args()
 
-    #customers = [1,2,100,270074,270081]
-    
     splitter = SplitXYByPer()
     #splitter = SplitXYByTime('2013-03-00')
     
@@ -79,12 +98,15 @@ def main():
     # pprint(splitter.split(customer.get_records(1)))
     #pprint(splitter.split(customer.get_records(270081)))
 
-    # cst = (int(customer_id)
-    #        for customer_id
-    #        in common.load_file(args.customers_file))
-    cst = [1,5]
+    cst = (int(customer_id)
+           for customer_id
+           in common.load_file(args.customers_file))
+    # cst = [1,2,100,270074,270081]
+    # cst = [1,5]
 
-    get_split(splitter, cst)
+    X, Y, c_ids = get_split(splitter, cst)
+    save(X, args.x_orders_out, Y, args.y_out, c_ids, args.customers_out)
+
 
 if __name__ == '__main__':
     main()
