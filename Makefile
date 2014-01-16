@@ -1,6 +1,8 @@
 
 ROOT_DIR = ../../
 
+PRODUCT_CUSTOMER_EDGES_FILE = gen/customer_product_counts.csv
+
 all: rf.probas
 
 x-orders.pkl y-list.csv x-customers-used.out x-skipped.out: $(ROOT_DIR)splitxy.py $(ROOT_DIR)$(CUSTOMERS_FILE)
@@ -23,6 +25,12 @@ analyse: $(ROOT_DIR)train.py model.pkl
 
 rf.probas: $(ROOT_DIR)train.py all-features.pkl model.pkl
 	python $< -p all-features.pkl -l model.pkl -s $@
+
+rwalks.probas: $(ROOT_DIR)randomwalks.py $(ROOT_DIR)$(PRODUCT_CUSTOMER_EDGES_FILE) $(ROOT_DIR)$(CUSTOMERS_FILE)
+	python $^ > $@
+
+sol.csv: $(ROOT_DIR)probas.py $(PROBAS_TO_COMBINE)
+	python $< $(PROBAS_TO_COMBINE) -c $(ROOT_DIR)$(CUSTOMERS_FILE) > $@
 
 clean:
 	find . -name "*.npy" -maxdepth 1 -print0 | xargs -0 rm
