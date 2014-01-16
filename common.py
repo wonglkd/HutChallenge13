@@ -10,7 +10,7 @@ except ImportError:
 class DBWrapper:
     def __init__(self, id='origdata'):
         DBs = {
-            'origdata': "db/db.sqlite3"
+            'origdata': "../../db/db.sqlite3"
         }
         db_filename = DBs[id]
         if db_interface == 'apsw':
