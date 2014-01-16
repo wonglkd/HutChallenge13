@@ -1,11 +1,12 @@
-# import networkx as nx
-import csv
 import common
+import customer
+import csv
 from pprint import pprint
 from collections import Counter
 from collections import defaultdict
 import random
 import bisect
+# import networkx as nx
 # from numpy.random import choice as np_choice
 # from numpy import cumsum
 # from numpy.random import rand
@@ -93,7 +94,7 @@ def main():
 
 	# with open(customers_to_predict_filename, 'rb') as f:
 	# 	customers_to_predict = ['c'+cid.strip() for cid in f if cid.strip() != ""]
-	customers_to_predict = common.load_customers(customers_to_predict_filename, 'c')
+	customers_to_predict = customer.load_ids(customers_to_predict_filename, add_prefix='c')
 
 	walk_length = 2
 	no_of_walks = 20 # 100
