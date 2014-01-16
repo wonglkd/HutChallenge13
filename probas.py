@@ -1,5 +1,6 @@
 import common
 import json
+from itertools import izip
 
 def load(probas_filename):
 	cust_probas = {}
@@ -11,6 +12,13 @@ def load(probas_filename):
 		probas = json.loads(probas)
 		cust_probas[customer] = probas
 	return cust_probas
+
+def save(probas, customer_ids, probas_filename):
+	with open(probas_filename, 'wb') as f_preds:
+		for customer_id, row_probas in izip(customer_ids, probas):
+			row_probas = ['"{}":{:g}'.format(label, val) for label, val in row_probas]
+			f_preds.write(customer_id + "|{" + ",".join(row_probas) + "}\n")
+
 
 def merge_dicts(dcts):
 	all_keys = set()
