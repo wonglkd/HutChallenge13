@@ -1,4 +1,6 @@
 import sys
+import cPickle as pickle
+import csv
 
 try:
     import apsw
@@ -44,9 +46,8 @@ def load_file(filename):
         for line in f:
             yield line
 
-def load_customers(filename, prefix=''):
-    with open(filename, 'rb') as f:
-        return [prefix+cid.strip() for cid in f if cid.strip() != ""]
+def flatten_lists(list_of_lists):
+    return [item for sublist in list_of_lists for item in sublist]
 
 def partition(pred, iter):
     t = []
@@ -57,3 +58,23 @@ def partition(pred, iter):
         else:
             f.append(row)
     return t, f
+
+def save_pickle(filename, obj):
+    with open(filename, 'wb') as f:
+        pickle.dump(obj, f, protocol=pickle.HIGHEST_PROTOCOL)
+
+def load_pickle(filename):
+    with open(filename, 'rb') as f:
+        return pickle.load(f)
+
+def save_csv_i(filename, obj_iter):
+    with open(filename, 'wb') as f:
+        writer = csv.writer(f)
+        for line in obj_iter:
+            writer.writerow(line)
+
+def load_csv_i(filename):
+    with open(filename, 'rb') as f:
+        reader = csv.reader(f)
+        for line in reader:
+            yield line
