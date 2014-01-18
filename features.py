@@ -67,17 +67,17 @@ class FeatNTransactions(Feature):
     """ No. of distinct order times """
 
     def generate_feat(self, orders):
-        return len(set([a[2] for a in orders]))
+        return len(customer.get_unique_times(orders))
 
 class FeatNProducts(Feature):
     """ No. of distinct products """
 
     def generate_feat(self, orders):
-        return len(set([a[1] for a in orders]))
+        return len(set([a[customer.ORDER_INDEX_PRODUCT] for a in orders]))
 
 class FeatTimeSinceLastOrder(Feature):
     def generate_feat(self, orders):
-        maxtime = dateutil.parser.parse(max(a[2] for a in orders))
+        maxtime = dateutil.parser.parse(max(a[customer.ORDER_INDEX_TIME] for a in orders))
         return (maxtime-datetime.datetime(1970,1,1)).total_seconds()
 
 class FeatIndividualProductCount(FeatureFindClasses):
