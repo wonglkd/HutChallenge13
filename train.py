@@ -43,15 +43,18 @@ def train(features_filename, y_filename, save_clf=None):
     
     return clf, X_train_feat_names, lb.classes_
 
-def analyse(clf, feature_names):
+def analyse(clf, feature_names, feat_impt_logfile):
     common.print_err("OOB Score:", clf.oob_score_)
     impts = clf.feature_importances_
     sorted_indices = np.argsort(impts)[::-1]
 
     common.print_err("Feature Ranking:")
-    for i, fid in enumerate(sorted_indices):
-        common.print_err("{i}. #{id} {feat_name} ({impt})".format(
-            i=i, id=fid, feat_name=feature_names[fid], impt=impts[fid]))
+    with open(feat_impt_logfile, 'wb') as f_logfile:
+        for i, fid in enumerate(sorted_indices):
+            feat_line = "{i}. #{id} {feat_name} ({impt})".format(
+                i=i, id=fid, feat_name=feature_names[fid], impt=impts[fid])
+            common.print_err(feat_line)
+            f_logfile.write(feat_line + "\n")
 
     # Plot feature importance graph
     std = np.std([tree.feature_importances_ for tree in clf.estimators_],
@@ -122,6 +125,7 @@ def main():
     parser.add_argument('-l', '--load-model')
     parser.add_argument('-c', '--customer-ids', default='all-customers-used.out')
     parser.add_argument('-s', '--save-probas', default='rf.probas')
+    parser.add_argument('-f', '--save-feats-impt', default='rf-feature-importances.out')
 
     # parser.add_argument('--removefeat', nargs='+', default=[])
     # parser.add_argument('--cv', action='store_true')
@@ -147,7 +151,7 @@ def main():
 
     if args.analyse_model:
         common.print_err("Analysing model...")
-        analyse(clf, x_feat_names)
+        analyse(clf, x_feat_names, args.save_feats_impt)
 
     if args.predict_feat:
         common.print_err("Making predictions...")

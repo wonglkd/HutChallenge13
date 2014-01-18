@@ -21,7 +21,7 @@ model.pkl: $(ROOT_DIR)train.py x-features.pkl y-list.csv
 	python $< -t x-features.pkl -y y-list.csv -o $@
 
 analyse: $(ROOT_DIR)train.py model.pkl
-	python $< -l model.pkl -a
+	python $< -l model.pkl -a -f feature-importances.out
 
 rf.probas: $(ROOT_DIR)train.py all-features.pkl model.pkl
 	python $< -p all-features.pkl -l model.pkl -s $@
