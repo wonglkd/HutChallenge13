@@ -75,9 +75,10 @@ def get_predictions(probas, N=6, to_pad=None):
         result[customer] = ans
     return result
 
-def print_submission(result, customers_filename):
-    for c in customer.load_ids(customers_filename):
-        print ','.join(map(str, result[c]))
+def save_submission(result, customers_filename, submission_filename):
+    with open(submission_filename, 'wb') as f:
+        for c in customer.load_ids(customers_filename):
+            f.write(','.join(map(str, result[c])) + '\n')
 
 def main():
     parser = argparse.ArgumentParser()
@@ -85,24 +86,24 @@ def main():
     parser.add_argument('-c', '--customers_filename')
     parser.add_argument('-w', '--weights', nargs='*', type=float)
     parser.add_argument('-o', '--output', default='combined.sol')
-    parser.add_argument('-p', '--to-pad', nargs='*', default=[200,441,177,392,50,11])
+    parser.add_argument('-p', '--to-pad', nargs='*', type=int, default=[200,441,177,392,50,11])
     args = parser.parse_args()
 
-    to_pad = [200,441,177,392,50,11]
-
     combine_func = sum
+    # doesn't work just yet
     # combine_func = scipy.stats.hmean
     # combine_func = scipy.stats.gmean
 
+
     all_probas = [load(f) for f in args.probas_filenames]
     if args.weights:
-        if len(all_probas) != len(arg.weights):
+        if len(all_probas) != len(args.weights):
             raise Exception("len(all_probas) != len(arg.weights)")
         all_probas = [reweigh_dict(p, factor) for p, factor in zip(all_probas, args.weights)]
     flattened_probas = combine(all_probas, combine_func)
 
-    result = get_predictions(flattened_probas, to_pad=to_pad)
-    print_submission(result, args.customers_filename)
+    result = get_predictions(flattened_probas, to_pad=args.to_pad)
+    save_submission(result, args.customers_filename, args.output)
 
 if __name__ == "__main__":
     main()

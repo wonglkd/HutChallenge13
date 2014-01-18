@@ -30,7 +30,7 @@ rwalks.probas: $(ROOT_DIR)randomwalks.py $(ROOT_DIR)$(PRODUCT_CUSTOMER_EDGES_FIL
 	python $^ > $@
 
 sol.csv: $(ROOT_DIR)probas.py $(PROBAS_TO_COMBINE)
-	python $< $(PROBAS_TO_COMBINE) -c $(ROOT_DIR)$(CUSTOMERS_FILE) > $@
+	python $< $(PROBAS_TO_COMBINE) -c $(ROOT_DIR)$(CUSTOMERS_FILE) $(PROBAS_PARAMS) -o $@
 
 clean:
 	find . -name "*.npy" -maxdepth 1 -print0 | xargs -0 rm
