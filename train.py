@@ -31,7 +31,7 @@ def train(features_filename, y_filename, save_clf=None):
         'n_estimators': 50,
         # 'n_estimators': 20,
         # 'n_estimators': 2,
-        'n_jobs': 2,
+        # 'n_jobs': 2,
         'oob_score': True,
         'verbose': 3,
         'random_state': 101
