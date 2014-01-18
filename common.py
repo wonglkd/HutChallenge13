@@ -1,6 +1,7 @@
 import sys
 import cPickle as pickle
 import csv
+import os.path
 
 try:
     import apsw
@@ -12,7 +13,7 @@ except ImportError:
 class DBWrapper:
     def __init__(self, id='origdata'):
         DBs = {
-            'origdata': "../../db/db.sqlite3"
+            'origdata': os.path.join(os.path.dirname(__file__), "db/db.sqlite3")
         }
         db_filename = DBs[id]
         if db_interface == 'apsw':
