@@ -5,8 +5,10 @@ from collections import Counter
 
 _db = common.DBWrapper()
 
+ORDER_INDEX_CUSTOMER = 0
 ORDER_INDEX_PRODUCT = 1
 ORDER_INDEX_TIME = 2
+ORDER_INDEX_COUNTRY = 3
 
 def get_records(customer_id):
     return list(_db.select('SELECT * FROM rec WHERE customer = ?', [customer_id]))
