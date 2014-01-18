@@ -69,6 +69,11 @@ class FeatNTransactions(Feature):
     def generate_feat(self, orders):
         return len(customer.get_unique_times(orders))
 
+class FeatAvgOrdersPerTransaction(Feature):
+    "Average Size of Transaction = FeatNOrders / FeatNTransactions"
+    def generate_feat(self, orders):
+        return len(orders) / len(customer.get_unique_times(orders))
+
 class FeatNProducts(Feature):
     """ No. of distinct products """
 
@@ -79,6 +84,16 @@ class FeatTimeSinceLastOrder(Feature):
     def generate_feat(self, orders):
         maxtime = dateutil.parser.parse(max(a[customer.ORDER_INDEX_TIME] for a in orders))
         return (maxtime-datetime.datetime(1970,1,1)).total_seconds()
+
+class FeatAvgIntervalBetweenTransactions(Feature):
+    """ Average interval between transactions """
+    def generate_feat(self, orders):
+        #print orders
+        times = customer.get_unique_times(orders)
+
+        return (dateutil.parser.parse(times[-1]) - 
+                dateutil.parser.parse(times[0])).total_seconds() / len(times)
+
 
 class FeatIndividualProductCount(FeatureFindClasses):
     def fit(self, X, y=None):
@@ -113,11 +128,14 @@ def get_combined():
     feature_generators = [
         ('fg_NOrders', FeatNOrders()),
         ('fg_NTransactions', FeatNTransactions()),
+        ('fg_AvgOrdersPerTransaction', FeatAvgOrdersPerTransaction()),
         ('fg_NProducts', FeatNProducts()),
-        ('fg_Country', FeatCountry()),
         ('fg_TimeSinceLastOrder', FeatTimeSinceLastOrder()),
-        ('fg_IndividualProductBinary', FeatIndividualProductBinary()),
-        # ('fg_IndividualProductCount', FeatIndividualProductCount())
+        ('fg_AvgIntervalBetweenTransactions', FeatAvgIntervalBetweenTransactions()),
+        ('fg_Country', FeatCountry()),
+
+        # ('fg_IndividualProductBinary', FeatIndividualProductBinary()),
+        ('fg_IndividualProductCount', FeatIndividualProductCount())
     ]
     # Disabled for the moment, lb/get_feature_names() does not play well with parallelisation
     # return FeatureUnion(feature_generators, n_jobs=-1)
