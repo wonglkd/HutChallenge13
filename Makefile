@@ -3,7 +3,7 @@ ROOT_DIR = ../../
 
 PRODUCT_CUSTOMER_EDGES_FILE = interim/customer_product_counts.csv
 
-all: rf.probas
+rf: rf.probas
 
 x-orders.pkl y-list.csv x-customers-used.out x-skipped.out: $(ROOT_DIR)splitxy.py $(ROOT_DIR)$(CUSTOMERS_FILE)
 	python $^ -x x-orders.pkl -y y-list.csv -c x-customers-used.out 2> x-skipped.out
