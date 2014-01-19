@@ -108,13 +108,40 @@ class FeatIndividualProductCount(FeatureFindClasses):
         seen = set()
         for orders in X:
             for row in orders:
-                seen.add(row[1])
+                seen.add(row[customer.ORDER_INDEX_PRODUCT])
         self.classes = list(seen)
     
     def transform(self, X):
         newX = []
         for orders in X:
-            product_count = Counter(row[1] for row in orders)
+            product_count = Counter(row[customer.ORDER_INDEX_PRODUCT] 
+                for row in orders)
+            newX.append([product_count[p] for p in self.classes])
+        return newX
+
+class FeatIndividualProductCountByMonth(FeatureFindClasses):
+    """ Individual product count since cutoff_month """
+    def __init__(self, cutoff_month='2012-08-00', **kwargs):
+        self._cutoff = cutoff_month
+        FeatureFindClasses.__init__(self, **kwargs)
+
+    def fit(self, X, y=None):
+        """ Find out the breadth of the product space """
+        if self._classes_fixed:
+            return
+        seen = set()
+        for orders in X:
+            for row in orders:
+                if row[customer.ORDER_INDEX_TIME] > self._cutoff:
+                    seen.add(row[customer.ORDER_INDEX_PRODUCT])
+        self.classes = list(seen)
+    
+    def transform(self, X):
+        newX = []
+        for orders in X:
+            product_count = Counter(
+                row[customer.ORDER_INDEX_PRODUCT] for row in orders
+                if row[customer.ORDER_INDEX_TIME] > self._cutoff)
             newX.append([product_count[p] for p in self.classes])
         return newX
 
@@ -141,7 +168,10 @@ def get_combined():
         ('fg_Country', FeatCountry()),
 
         # ('fg_IndividualProductBinary', FeatIndividualProductBinary()),
-        ('fg_IndividualProductCount', FeatIndividualProductCount())
+        ('fg_IndividualProductCount', FeatIndividualProductCount()),
+        ('fg_IndividualProductCountByMonth12', FeatIndividualProductCountByMonth('2012-08-00')),
+        ('fg_IndividualProductCountByMonth9', FeatIndividualProductCountByMonth('2012-11-00')),
+        ('fg_IndividualProductCountByMonth6', FeatIndividualProductCountByMonth('2013-02-00'))
     ]
     # Disabled for the moment, lb/get_feature_names() does not play well with parallelisation
     # return FeatureUnion(feature_generators, n_jobs=-1)
