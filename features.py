@@ -99,6 +99,20 @@ class FeatAvgIntervalBetweenTransactions(Feature):
         return (dateutil.parser.parse(times[-1]) - 
                 dateutil.parser.parse(times[0])).total_seconds() / len(times)
 
+class FeatAvgIntervalBetweenProduct(Feature):
+    """ Average interval between selected product purchase  """
+    def __init__(self, productID=200):
+        self._productID = productID
+
+    def generate_feat(self, orders):
+        purchasedTime = set(a[customer.ORDER_INDEX_TIME] for a in orders 
+            if a[customer.ORDER_INDEX_PRODUCT] == self._productID);
+        NProduct = len(purchasedTime)
+        if NProduct == 0:
+            return 0
+        firstOrderTime = dateutil.parser.parse(min(purchasedTime))
+        lastOrderTime = dateutil.parser.parse(max(purchasedTime))
+        return (lastOrderTime - firstOrderTime).total_seconds() / NProduct
 
 class FeatIndividualProductCount(FeatureFindClasses):
     def fit(self, X, y=None):
@@ -165,6 +179,9 @@ def get_combined():
         ('fg_TimeSinceLastOrder', FeatTimeSinceLastOrder()),
         ('fg_TimeSinceFirstOrder', FeatTimeSinceFirstOrder()),
         ('fg_AvgIntervalBetweenTransactions', FeatAvgIntervalBetweenTransactions()),
+        ('fg_AvgIntervalBetweenProduct200', FeatAvgIntervalBetweenProduct(200)),
+        ('fg_AvgIntervalBetweenProduct392', FeatAvgIntervalBetweenProduct(392)),
+        ('fg_AvgIntervalBetweenProduct500', FeatAvgIntervalBetweenProduct(500)),
         ('fg_Country', FeatCountry()),
 
         # ('fg_IndividualProductBinary', FeatIndividualProductBinary()),
