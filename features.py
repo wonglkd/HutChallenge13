@@ -85,6 +85,11 @@ class FeatTimeSinceLastOrder(Feature):
         maxtime = dateutil.parser.parse(max(a[customer.ORDER_INDEX_TIME] for a in orders))
         return (maxtime-datetime.datetime(1970,1,1)).total_seconds()
 
+class FeatTimeSinceFirstOrder(Feature):
+    def generate_feat(self, orders):
+        mintime = dateutil.parser.parse(min(a[customer.ORDER_INDEX_TIME] for a in orders))
+        return (mintime-datetime.datetime(1970,1,1)).total_seconds()
+
 class FeatAvgIntervalBetweenTransactions(Feature):
     """ Average interval between transactions """
     def generate_feat(self, orders):
@@ -131,6 +136,7 @@ def get_combined():
         ('fg_AvgOrdersPerTransaction', FeatAvgOrdersPerTransaction()),
         ('fg_NProducts', FeatNProducts()),
         ('fg_TimeSinceLastOrder', FeatTimeSinceLastOrder()),
+        ('fg_TimeSinceFirstOrder', FeatTimeSinceFirstOrder()),
         ('fg_AvgIntervalBetweenTransactions', FeatAvgIntervalBetweenTransactions()),
         ('fg_Country', FeatCountry()),
 
