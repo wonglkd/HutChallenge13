@@ -68,14 +68,14 @@ def load_pickle(filename):
     with open(filename, 'rb') as f:
         return pickle.load(f)
 
-def save_csv_i(filename, obj_iter):
+def save_csv_i(filename, obj_iter, delimiter=','):
     with open(filename, 'wb') as f:
-        writer = csv.writer(f)
+        writer = csv.writer(f, delimiter=delimiter)
         for line in obj_iter:
             writer.writerow(line)
 
-def load_csv_i(filename):
+def load_csv_i(filename, delimiter=','):
     with open(filename, 'rb') as f:
-        reader = csv.reader(f)
+        reader = csv.reader(f, delimiter=delimiter)
         for line in reader:
             yield line
