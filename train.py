@@ -6,12 +6,14 @@ import json
 import argparse
 import numpy as np
 import probas
+from sklearn.multiclass import OneVsRestClassifier
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.externals import joblib
 from sklearn.preprocessing import LabelBinarizer
 import pylab as pl
 
-def train(features_filename, y_filename, save_clf=None):
+def train(features_filename, y_filename, save_clf=None, use_clf='rf'):
     """ Returns a pair of (classifier, feature_names, y_labels) """
     X_train_, X_train_feat_names = features.load(features_filename)
 
@@ -37,7 +39,12 @@ def train(features_filename, y_filename, save_clf=None):
         'random_state': 101
     }
 
-    clf = RandomForestClassifier(**params_fixed)
+    if use_clf == 'rf':
+        clf = RandomForestClassifier(**params_fixed['rf'])
+    elif use_clf == 'gbm':
+        clf = OneVsRestClassifier(GradientBoostingClassifier(**params_fixed['gbm']))
+    else:
+        raise Exception("Classifier {} not found".format(use_clf))
 
     clf.fit(X_train, Y_train)
     
@@ -81,8 +88,9 @@ def predict(clf, y_labels, customer_ids, test_features_filename, preds_filename,
 
     Y_test_probas = clf.predict_proba(np.asarray(X_test))
 
-    Y_test_probas = [[pred[1] for pred in label_probs] for label_probs in Y_test_probas]
-    Y_test_probas = np.asarray(Y_test_probas).T
+    if clf.__class__.__name__ == 'RandomForestClassifier':
+        Y_test_probas = [[pred[1] for pred in label_probs] for label_probs in Y_test_probas]
+        Y_test_probas = np.asarray(Y_test_probas).T
 
     if len(Y_test_probas) != len(customer_ids):
         raise Exception("len(Y_test_probas) != len(customer_ids)")
@@ -121,6 +129,7 @@ def main():
 
     parser.add_argument('-a', '--analyse-model', action='store_true')
 
+    parser.add_argument('--clf', default='rf')
     parser.add_argument('-p', '--predict-feat')
     parser.add_argument('-l', '--load-model')
     parser.add_argument('-c', '--customer-ids', default='all-customers-used.out')
@@ -138,7 +147,7 @@ def main():
         raise Exception("--train and --load-model both specified")
     elif args.train:
         common.print_err("Training model...")
-        clf, x_feat_names, y_labels = train(args.train, args.y_list, args.output_model)
+        clf, x_feat_names, y_labels = train(args.train, args.y_list, args.output_model, args.clf)
         if args.output_model:
             common.print_err("Saving model...")
             # joblib.dump((clf, x_feat_names, y_labels), args.output_model)
