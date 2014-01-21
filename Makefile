@@ -1,7 +1,11 @@
 
-ROOT_DIR = ../../
+ROOT_DIR ?= ../../
 
-PRODUCT_CUSTOMER_EDGES_FILE = interim/customer_product_counts.csv
+PRODUCT_CUSTOMER_EDGES_FILE ?= interim/customer_product_counts.csv
+
+CUSTOMERS_TRAIN_FILE ?= $(CUSTOMERS_FILE)
+# CUSTOMERS_TRAIN_FILE ?= data/all_customers.csv
+CUSTOMERS_TEST_FILE ?= $(CUSTOMERS_FILE)
 
 rf: rf.probas
 
@@ -26,11 +30,11 @@ analyse: $(ROOT_DIR)train.py model.pkl
 rf.probas: $(ROOT_DIR)train.py all-features.pkl model.pkl
 	python $< -p all-features.pkl -l model.pkl -s $@
 
-rwalks.probas: $(ROOT_DIR)randomwalks.py $(ROOT_DIR)$(PRODUCT_CUSTOMER_EDGES_FILE) $(ROOT_DIR)$(CUSTOMERS_FILE)
+rwalks.probas: $(ROOT_DIR)randomwalks.py $(ROOT_DIR)$(PRODUCT_CUSTOMER_EDGES_FILE) $(ROOT_DIR)$(CUSTOMERS_TEST_FILE)
 	python $^ > $@
 
-sol.csv: $(ROOT_DIR)probas.py $(PROBAS_TO_COMBINE)
-	python $< $(PROBAS_TO_COMBINE) -c $(ROOT_DIR)$(CUSTOMERS_FILE) $(PROBAS_PARAMS) -o $@
+sol.csv: $(ROOT_DIR)probas.py $(PROBAS_TO_COMBINE) $(ROOT_DIR)$(CUSTOMERS_TEST_FILE)
+	python $< $(PROBAS_TO_COMBINE) -c $(ROOT_DIR)$(CUSTOMERS_TEST_FILE) $(PROBAS_PARAMS) -o $@
 
 clean:
 	find . -name "*.npy" -maxdepth 1 -print0 | xargs -0 rm
