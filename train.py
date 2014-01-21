@@ -13,9 +13,16 @@ from sklearn.externals import joblib
 from sklearn.preprocessing import LabelBinarizer
 import pylab as pl
 
-def train(features_filename, y_filename, save_clf=None, use_clf='rf'):
+def train(features_filename, y_filename, use_only_feat=None, save_clf=None, use_clf='rf'):
     """ Returns a pair of (classifier, feature_names, y_labels) """
     X_train_, X_train_feat_names = features.load(features_filename)
+    # to be continued - to apply the two functions
+    if use_only_feat:
+        feats_to_use = get_feat_from_logfile(use_only_feat)
+        if frozenset(X_train_feat_names) != frozenset(feats_to_use):
+            common.print_err("Filtering out features based on those supplied (orig: {n})...".format(n=len(X_train_feat_names)))
+            X_train_, X_train_feat_names = filter_feat(X_train_, X_train_feat_names, feats_to_use)
+            common.print_err("{n} features remaining.".format(n=len(X_train_feat_names)))
 
     Y_list = list(splitxy.load_y(y_filename))
 
@@ -73,8 +80,8 @@ def analyse(clf, feature_names, feat_impt_logfile):
         f_logfile.write("OOB Score:{}\n".format(clf.oob_score_))
         common.print_err("Feature Ranking:")
         for i, fid in enumerate(sorted_indices):
-            feat_line = "{i}. #{id} {feat_name} ({impt})".format(
-                i=i, id=fid, feat_name=feature_names[fid], impt=impts[fid])
+            feat_line = "{feat_name} {i}. #{id} ({impt})".format(
+                i=i+1, id=fid, feat_name=feature_names[fid], impt=impts[fid])
             common.print_err(feat_line)
             f_logfile.write(feat_line + "\n")
 
@@ -97,9 +104,22 @@ def analyse(clf, feature_names, feat_impt_logfile):
     # else:
     #         pl.savefig(args.output)
 
-def predict(clf, y_labels, customer_ids, test_features_filename, preds_filename, top_k=20):
+def get_feat_from_logfile(feat_impt_logfile):
+    return [line[0] for line in common.load_csv_i(feat_impt_logfile, delimiter=' ')]
+
+def filter_feat(X, X_feat_names, feats_to_use):
+    feats_to_use = frozenset(feats_to_use)
+    X_feat_ind = [i for i, f in enumerate(X_feat_names) if f in feats_to_use]
+    X, X_feat_names = np.asarray(X), np.asarray(X_feat_names)
+    return X[:, X_feat_ind], X_feat_names[X_feat_ind]
+
+def predict(clf, X_train_feat_names, y_labels, customer_ids, test_features_filename, preds_filename, top_k=20):
     """ Save top-K probabilities and labels """
     X_test, X_test_feat_names = features.load(test_features_filename)
+    if frozenset(X_test_feat_names) != frozenset(X_train_feat_names):
+        common.print_err("Filtering features to those used in training (orig: {n}...".format(n=len(X_test_feat_names)))
+        X_test, X_test_feat_names = filter_feat(X_test, X_test_feat_names, X_train_feat_names)
+        common.print_err("{n} features remaining.".format(n=len(X_test_feat_names)))
 
     Y_test_probas = clf.predict_proba(np.asarray(X_test))
 
@@ -145,13 +165,14 @@ def main():
     parser.add_argument('-a', '--analyse-model', action='store_true')
 
     parser.add_argument('--clf', default='rf')
+    parser.add_argument('--feature-select', action='store_true')
+    parser.add_argument('--use-only-feat', default='rf-feature-importances.out')
     parser.add_argument('-p', '--predict-feat')
     parser.add_argument('-l', '--load-model')
     parser.add_argument('-c', '--customer-ids', default='all-customers-used.out')
     parser.add_argument('-s', '--save-probas', default='rf.probas')
     parser.add_argument('-f', '--save-feats-impt', default='rf-feature-importances.out')
 
-    # parser.add_argument('--removefeat', nargs='+', default=[])
     # parser.add_argument('--cv', action='store_true')
     # parser.add_argument('--folds', default=3)
     # parser.add_argument('--gridsearch', action='store_true')
@@ -162,7 +183,8 @@ def main():
         raise Exception("--train and --load-model both specified")
     elif args.train:
         common.print_err("Training model...")
-        clf, x_feat_names, y_labels = train(args.train, args.y_list, args.output_model, args.clf)
+        use_feat = None if not args.feature_select else args.use_only_feat
+        clf, x_feat_names, y_labels = train(args.train, args.y_list, use_feat, args.output_model, args.clf)
         if args.output_model:
             common.print_err("Saving model...")
             # joblib.dump((clf, x_feat_names, y_labels), args.output_model)
@@ -180,7 +202,7 @@ def main():
     if args.predict_feat:
         common.print_err("Making predictions...")
         customer_ids = customer.load_ids(args.customer_ids)
-        predict(clf, y_labels, customer_ids, args.predict_feat, args.save_probas)
+        predict(clf, x_feat_names, y_labels, customer_ids, args.predict_feat, args.save_probas)
 
 if __name__ == "__main__":
     main()

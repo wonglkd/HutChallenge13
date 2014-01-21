@@ -23,7 +23,7 @@ all-features.pkl x-features.pkl: $(ROOT_DIR)features.py all-orders.pkl x-orders.
 
 # where % = {rf, gbm}
 rf-model.pkl gbm-model.pkl: %-model.pkl: $(ROOT_DIR)train.py x-features.pkl y-list.csv
-	python $< -t x-features.pkl -y y-list.csv -o $@ --clf $*
+	python $< -t x-features.pkl -y y-list.csv -o $@ --clf $* $(TRAIN_PARAMS)
 
 %.probas: $(ROOT_DIR)train.py all-features.pkl %-model.pkl
 	python $< -p all-features.pkl -l $*-model.pkl -s $@
