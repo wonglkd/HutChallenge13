@@ -65,12 +65,13 @@ def train(features_filename, y_filename, save_clf=None, use_clf='rf'):
     return clf, X_train_feat_names, lb.classes_
 
 def analyse(clf, feature_names, feat_impt_logfile):
-    common.print_err("OOB Score:", clf.oob_score_)
     impts = clf.feature_importances_
     sorted_indices = np.argsort(impts)[::-1]
 
-    common.print_err("Feature Ranking:")
     with open(feat_impt_logfile, 'wb') as f_logfile:
+        common.print_err("OOB Score:", clf.oob_score_)
+        f_logfile.write("OOB Score:{}\n".format(clf.oob_score_))
+        common.print_err("Feature Ranking:")
         for i, fid in enumerate(sorted_indices):
             feat_line = "{i}. #{id} {feat_name} ({impt})".format(
                 i=i, id=fid, feat_name=feature_names[fid], impt=impts[fid])
