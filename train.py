@@ -29,14 +29,28 @@ def train(features_filename, y_filename, save_clf=None, use_clf='rf'):
         'n_estimators': [100]
     }
     params_fixed = {
-        'n_estimators': 80,
-        # 'n_estimators': 50,
-        # 'n_estimators': 20,
-        # 'n_estimators': 2,
-        # 'n_jobs': 2,
-        'oob_score': True,
-        'verbose': 3,
-        'random_state': 101
+        'rf': {
+            # 'n_estimators': 80,
+            'n_estimators': 20,
+            # 'n_estimators': 50,
+            # 'n_estimators': 20,
+            # 'n_estimators': 2,
+            # 'n_jobs': 2,
+            'max_features': 20,
+            'oob_score': True,
+            'verbose': 2,
+            'random_state': 101
+        },
+        'gbm': {
+            'learning_rate': 0.10,
+            # 'learning_rate': 0.05,
+            'n_estimators': 5,
+            # 'n_estimators': 100,
+            'max_depth': 3,
+            # 'subsample': 0.5,
+            'verbose': 2,
+            'random_state': 101
+        }
     }
 
     if use_clf == 'rf':
