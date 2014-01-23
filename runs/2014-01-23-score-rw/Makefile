@@ -11,7 +11,7 @@ RWALKS_PARAMS = --walk-length 2 --no-walks 20
 # to be fixed
 PROBAS_TO_COMBINE = rwalks_$(EXPERIMENT_NAME).probas
 # uncomment if you want to mix in probabilities from somewhere else
-# PROBAS_TO_COMBINE += ../2014-01-19-newfeat-0.02/rf.probas
+# PROBAS_TO_COMBINE += ../2014-01-21-rf-all/rf.probas
 score:
 sol: sol.csv
 include ../../Makefile
