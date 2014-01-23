@@ -27,19 +27,16 @@ all-features.pkl x-features.pkl: $(ROOT_DIR)features.py all-orders.pkl x-orders.
 rf-model.pkl gbm-model.pkl: %-model.pkl: $(ROOT_DIR)train.py x-features.pkl y-list.csv
 	python $< -t x-features.pkl -y y-list.csv -o $@ --clf $* $(TRAIN_PARAMS)
 
-%.probas: $(ROOT_DIR)train.py all-features.pkl %-model.pkl
+rf.probas gbm.probas: %.probas: $(ROOT_DIR)train.py all-features.pkl %-model.pkl
 	python $< -p all-features.pkl -l $*-model.pkl -s $@
 
 %-analyse: $(ROOT_DIR)train.py %-model.pkl
 	python $< -l $*-model.pkl -a -f "feature-importances"`date "+_%Y%m%d-%H%M.txt"`
 
-rwalks.probas: $(ROOT_DIR)randomwalks.py $(ROOT_DIR)$(PRODUCT_CUSTOMER_EDGES_FILE) $(ROOT_DIR)$(CUSTOMERS_TEST_FILE)
-	python $^ $(RWALKS_PARAMS)-o $@
-
 rwalks%.probas: $(ROOT_DIR)randomwalks.py $(ROOT_DIR)$(PRODUCT_CUSTOMER_EDGES_FILE) $(ROOT_DIR)$(CUSTOMERS_TEST_FILE)
 	python $^ $(RWALKS_PARAMS) -o $@
 
-sol.csv: $(ROOT_DIR)probas.py $(PROBAS_TO_COMBINE) $(ROOT_DIR)$(CUSTOMERS_TEST_FILE)
+sol%.csv: $(ROOT_DIR)probas.py $(PROBAS_TO_COMBINE) $(ROOT_DIR)$(CUSTOMERS_TEST_FILE)
 	python $< $(PROBAS_TO_COMBINE) -c $(ROOT_DIR)$(CUSTOMERS_TEST_FILE) $(PROBAS_PARAMS) -o $@
 
 score: $(ROOT_DIR)score.py $(ACTUALS_FOR_SCORING) $(SOL_TO_SCORE) $(ROOT_DIR)$(CUSTOMERS_TEST_FILE)
