@@ -4,6 +4,8 @@ import argparse
 import json
 import scipy.stats
 from itertools import izip
+from functools import partial
+import numpy as np
 
 def load(probas_filename):
     cust_probas = {}
@@ -32,11 +34,13 @@ def merge_dicts(dcts, combine_func=sum):
         result[k] = combine_func(dct.get(k, 0) for dct in dcts)
     return result
 
-def combine(list_of_probas, combine_func=sum):
+def combine(list_of_probas, customers_filename='data/publicChallenge.csv', combine_func=sum):
     # simple summation
     all_customers = set()
     for pr in list_of_probas:
         all_customers |= set(pr.keys())
+
+    all_customers |= set(map(str, customer.load_ids(customers_filename)))
 
     combined_probas = {}
     for c in all_customers:
@@ -85,6 +89,20 @@ def load_submission_i(submission_filename, customers_filename):
                                  common.load_csv_i(submission_filename)):
         yield customer_id, map(int, row)
 
+def harmonic_mean_n(vals, N=2):
+    vals = list(vals)
+    pad_with = min(vals) / 2.
+    while len(vals) < N:
+        vals.append(pad_with)
+    vals = [1. / max(v, 0.001) for v in vals]
+    return N / np.sum(vals)
+
+def geometric_product(vals):
+    p = 1.
+    for v in vals:
+        p *= max(v, 0.03)
+    return p
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('probas_filenames', nargs='+')
@@ -95,6 +113,8 @@ def main():
     args = parser.parse_args()
 
     combine_func = sum
+    # combine_func = partial(harmonic_mean_n, N=len(args.probas_filenames))
+    combine_func = geometric_product
     # doesn't work just yet
     # combine_func = scipy.stats.hmean
     # combine_func = scipy.stats.gmean
@@ -105,7 +125,7 @@ def main():
         if len(all_probas) != len(args.weights):
             raise Exception("len(all_probas) != len(arg.weights)")
         all_probas = [reweigh_dict(p, factor) for p, factor in zip(all_probas, args.weights)]
-    flattened_probas = combine(all_probas, combine_func)
+    flattened_probas = combine(all_probas, args.customers_filename, combine_func)
 
     result = get_predictions(flattened_probas, to_pad=args.to_pad)
     save_submission(result, args.output, args.customers_filename)
