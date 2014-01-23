@@ -79,7 +79,7 @@ def load_adj_list(edges_filename):
             G_w[p].append(w)
     return customers, products, G, G_w
 
-def predict(customers_to_predict, customers, G, G_w, walk_length, no_of_walks, N):
+def predict(customers_to_predict, customers, G, G_w, walk_length, no_of_walks, N, output_filename):
     cumtotals = {}
     for v1, dt in G_w.iteritems():
         cum_sum = 0
@@ -89,22 +89,26 @@ def predict(customers_to_predict, customers, G, G_w, walk_length, no_of_walks, N
             cum_sums.append(cum_sum)
         cumtotals[v1] = cum_sums
 
-    for start in customers_to_predict:
-        if start not in customers:
-            # common.print_err("Skipped, no data:", start)
-            print start[1:] + '|{}'
-            continue
-        visited_counts = Counter()
-        for _ in xrange(no_of_walks):
-            curr = weighted_choice(G[start], cumtotals[start])
-            for _ in xrange(walk_length):
-                visited_counts[curr] += 1
-                curr = weighted_choice(G[curr], cumtotals[curr])
-                curr = weighted_choice(G[curr], cumtotals[curr])
-        total_cnts = sum(visited_counts.values())
-        most_visited = ['"'+k[1:]+'":'+'{}'.format(v/float(total_cnts)) for k, v in visited_counts.most_common(N)]
-        print start[1:] + '|' + '{' + ','.join(most_visited) + '}'
-        # visited_counts
+    with open(output_filename, "wb") as f:
+        for start in customers_to_predict:
+            if start not in customers:
+                # common.print_err("Skipped, no data:", start)
+                # print start[1:] + '|{}'
+                f.write(start[1:] + '|{}\n')
+                continue
+            visited_counts = Counter()
+            for _ in xrange(no_of_walks):
+                curr = weighted_choice(G[start], cumtotals[start])
+                for _ in xrange(walk_length):
+                    visited_counts[curr] += 1
+                    curr = weighted_choice(G[curr], cumtotals[curr])
+                    curr = weighted_choice(G[curr], cumtotals[curr])
+            total_cnts = sum(visited_counts.values())
+            most_visited = ['"'+k[1:]+'":'+'{}'.format(v/float(total_cnts)) for k, v in visited_counts.most_common(N)]
+            row_str = start[1:] + '|' + '{' + ','.join(most_visited) + '}'
+            # print row_str
+            f.write(row_str + "\n")
+            # visited_counts
 
 def main():
     parser = argparse.ArgumentParser()
@@ -130,7 +134,7 @@ def main():
     # walk_length = 2
     # no_of_walks = 20 # 100
 
-    predict(customers_to_predict, customers, G, G_w, args.walk_length, args.no_walks, args.top_n)
+    predict(customers_to_predict, customers, G, G_w, args.walk_length, args.no_walks, args.top_n, args.output)
 
     # N = 6
     # N = 20

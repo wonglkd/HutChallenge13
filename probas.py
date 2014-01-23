@@ -75,10 +75,15 @@ def get_predictions(probas, N=6, to_pad=None):
         result[customer] = ans
     return result
 
-def save_submission(result, customers_filename, submission_filename):
+def save_submission(result, submission_filename, customers_filename):
     with open(submission_filename, 'wb') as f:
         for c in customer.load_ids(customers_filename):
             f.write(','.join(map(str, result[c])) + '\n')
+
+def load_submission_i(submission_filename, customers_filename):
+    for customer_id, row in izip(customer.load_ids(customers_filename),
+                                 common.load_csv_i(submission_filename)):
+        yield customer_id, map(int, row)
 
 def main():
     parser = argparse.ArgumentParser()
@@ -103,7 +108,7 @@ def main():
     flattened_probas = combine(all_probas, combine_func)
 
     result = get_predictions(flattened_probas, to_pad=args.to_pad)
-    save_submission(result, args.customers_filename, args.output)
+    save_submission(result, args.output, args.customers_filename)
 
 if __name__ == "__main__":
     main()

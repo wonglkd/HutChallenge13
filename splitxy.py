@@ -81,6 +81,12 @@ def load_y(filename):
     for _, row in common.load_csv_i(filename):
         yield json.loads(row)
 
+def load_y_with_cust(filename):
+    """ returns a dict of form { customerid: [product1, product2, ...] } """
+    return { customer_id : json.loads(row)
+             for customer_id, row in common.load_csv_i(filename) }
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("customers_file", nargs='?', default="interim/customers-100.txt")

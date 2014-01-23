@@ -6,6 +6,8 @@ PRODUCT_CUSTOMER_EDGES_FILE ?= interim/customer_product_counts.csv
 CUSTOMERS_TRAIN_FILE ?= $(CUSTOMERS_FILE)
 # CUSTOMERS_TRAIN_FILE ?= data/all_customers.csv
 CUSTOMERS_TEST_FILE ?= $(CUSTOMERS_FILE)
+SOL_TO_SCORE ?= sol.csv
+ACTUALS_FOR_SCORING ?= $(ROOT_DIR)interim/y-list.csv
 
 rf: rf.probas
 gbm: gbm.probas
@@ -32,10 +34,16 @@ rf-model.pkl gbm-model.pkl: %-model.pkl: $(ROOT_DIR)train.py x-features.pkl y-li
 	python $< -l $*-model.pkl -a -f "feature-importances"`date "+_%Y%m%d-%H%M.txt"`
 
 rwalks.probas: $(ROOT_DIR)randomwalks.py $(ROOT_DIR)$(PRODUCT_CUSTOMER_EDGES_FILE) $(ROOT_DIR)$(CUSTOMERS_TEST_FILE)
-	python $^ > $@
+	python $^ $(RWALKS_PARAMS)-o $@
+
+rwalks%.probas: $(ROOT_DIR)randomwalks.py $(ROOT_DIR)$(PRODUCT_CUSTOMER_EDGES_FILE) $(ROOT_DIR)$(CUSTOMERS_TEST_FILE)
+	python $^ $(RWALKS_PARAMS) -o $@
 
 sol.csv: $(ROOT_DIR)probas.py $(PROBAS_TO_COMBINE) $(ROOT_DIR)$(CUSTOMERS_TEST_FILE)
 	python $< $(PROBAS_TO_COMBINE) -c $(ROOT_DIR)$(CUSTOMERS_TEST_FILE) $(PROBAS_PARAMS) -o $@
+
+score: $(ROOT_DIR)score.py $(ACTUALS_FOR_SCORING) $(SOL_TO_SCORE) $(ROOT_DIR)$(CUSTOMERS_TEST_FILE)
+	python $< $(ACTUALS_FOR_SCORING) $(SOL_TO_SCORE) -c $(ROOT_DIR)$(CUSTOMERS_TEST_FILE)
 
 clean:
 	find . -name "*.npy" -maxdepth 1 -print0 | xargs -0 rm
