@@ -119,3 +119,11 @@ GROUP BY customer;
 SELECT 'c' || customer, 'p' || product, COUNT(*) as weight FROM rec
 GROUP BY customer, product;
 .output stdout
+----------
+.mode csv
+.output first_buys.csv
+SELECT * FROM 
+rec,
+(SELECT customer, MIN(t) as min_time FROM rec GROUP BY customer) a
+WHERE a.customer = rec.customer AND t = min_time;
+.output stdout

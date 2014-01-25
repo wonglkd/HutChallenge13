@@ -109,7 +109,8 @@ def main():
     parser.add_argument('-c', '--customers_filename')
     parser.add_argument('-w', '--weights', nargs='*', type=float)
     parser.add_argument('-o', '--output', default='combined.sol')
-    parser.add_argument('-p', '--to-pad', nargs='*', type=int, default=[200,441,177,392,50,11])
+    # parser.add_argument('-p', '--to-pad', nargs='*', type=int, default=[200,441,177,392,50,11])
+    parser.add_argument('-p', '--to-pad', nargs='*', type=int, default=[200, 316, 500, 392, 135])
     args = parser.parse_args()
 
     combine_func = sum
