@@ -13,6 +13,7 @@ CUSTOMER_PRODUCT_COUNTS_FILE ?= $(ROOT_DIR)interim/products_by_test_customers_cn
 
 rf: rf.probas
 gbm: gbm.probas
+sgd: sgd.probas
 
 .SECONDARY: rf-model.pkl gbm-model.pkl
 
@@ -25,11 +26,11 @@ all-orders.pkl all-customers-used.out: $(ROOT_DIR)customer.py $(ROOT_DIR)$(CUSTO
 all-features.pkl x-features.pkl: $(ROOT_DIR)features.py all-orders.pkl x-orders.pkl
 	python $^ -o all-features.pkl x-features.pkl
 
-# where % = {rf, gbm}
-rf-model.pkl gbm-model.pkl: %-model.pkl: $(ROOT_DIR)train.py x-features.pkl y-list.csv
+# where % = {rf, gbm, sgd}
+sgd-model.pkl rf-model.pkl gbm-model.pkl: %-model.pkl: $(ROOT_DIR)train.py x-features.pkl y-list.csv
 	python $< -t x-features.pkl -y y-list.csv -o $@ --clf $* $(TRAIN_PARAMS)
 
-rf.probas gbm.probas: %.probas: $(ROOT_DIR)train.py all-features.pkl %-model.pkl
+sgd.probas rf.probas gbm.probas: %.probas: $(ROOT_DIR)train.py all-features.pkl %-model.pkl
 	python $< -p all-features.pkl -l $*-model.pkl -s $@
 
 %-analyse: $(ROOT_DIR)train.py %-model.pkl

@@ -9,6 +9,7 @@ import probas
 from sklearn.multiclass import OneVsRestClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.linear_model import SGDClassifier
 from sklearn.externals import joblib
 from sklearn.preprocessing import LabelBinarizer
 import pylab as pl
@@ -57,6 +58,13 @@ def train(features_filename, y_filename, use_only_feat=None, save_clf=None, use_
             # 'subsample': 0.5,
             'verbose': 2,
             'random_state': 101
+        },
+        'sgd': {
+            'loss': 'log', # 'modified_huber'
+            'penalty': 'l2', # 'elasticnet'
+            'alpha': 0.00001, # 0.00001, 0.000001
+            'n_iter': 8, # 10, 50, 80
+            'verbose': 2,
         }
     }
 
@@ -64,6 +72,8 @@ def train(features_filename, y_filename, use_only_feat=None, save_clf=None, use_
         clf = RandomForestClassifier(**params_fixed['rf'])
     elif use_clf == 'gbm':
         clf = OneVsRestClassifier(GradientBoostingClassifier(**params_fixed['gbm']))
+    elif use_clf == 'sgd':
+        clf = OneVsRestClassifier(SGDClassifier(**params_fixed['sgd']))
     else:
         raise Exception("Classifier {} not found".format(use_clf))
 
