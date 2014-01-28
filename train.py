@@ -6,6 +6,9 @@ import json
 import argparse
 import numpy as np
 import probas
+import yaml
+import datetime
+from pprint import pprint
 from sklearn.multiclass import OneVsRestClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import GradientBoostingClassifier
@@ -14,7 +17,7 @@ from sklearn.externals import joblib
 from sklearn.preprocessing import LabelBinarizer
 import pylab as pl
 
-def train(features_filename, y_filename, use_only_feat=None, save_clf=None, use_clf='rf'):
+def train(features_filename, y_filename, use_only_feat=None, save_clf=None, use_clf='rf', params_filename=None):
     """ Returns a pair of (classifier, feature_names, y_labels) """
     X_train_, X_train_feat_names = features.load(features_filename)
     # to be continued - to apply the two functions
@@ -76,6 +79,33 @@ def train(features_filename, y_filename, use_only_feat=None, save_clf=None, use_
         clf = OneVsRestClassifier(SGDClassifier(**params_fixed['sgd']))
     else:
         raise Exception("Classifier {} not found".format(use_clf))
+
+
+    # Handle config file
+    # Behaviour:
+    # - if present, load from it.
+    # - if not present, create it and dump current values there.
+
+    try:
+        with open(params_filename, 'rb') as f:
+            loaded_params = yaml.load(f)
+            if use_clf in loaded_params:
+                clf.set_params(**loaded_params[use_clf])
+                common.print_err("Params loaded from file.")
+                pprint(loaded_params[use_clf])
+    except IOError:
+        # file does not exist
+        common.print_err("Params file does not exist; creating it ({}).".format(params_filename))
+        to_save = {
+            use_clf: clf.get_params(),
+            '_timestamp_saved': datetime.datetime.now().isoformat()
+        }
+        with open(params_filename, 'wb') as f:
+            yaml.dump(to_save, f)
+            # pprint(to_save, stream=f)
+    
+    common.print_err("Parameters used:")
+    pprint({use_clf: clf.get_params()})
 
     clf.fit(X_train, Y_train)
     
@@ -182,6 +212,7 @@ def main():
     parser.add_argument('-c', '--customer-ids', default='all-customers-used.out')
     parser.add_argument('-s', '--save-probas', default='rf.probas')
     parser.add_argument('-f', '--save-feats-impt', default='rf-feature-importances.out')
+    parser.add_argument('-P', '--params-filename', default='params-clf.yaml')
 
     # parser.add_argument('--cv', action='store_true')
     # parser.add_argument('--folds', default=3)
@@ -194,7 +225,7 @@ def main():
     elif args.train:
         common.print_err("Training model...")
         use_feat = None if not args.feature_select else args.use_only_feat
-        clf, x_feat_names, y_labels = train(args.train, args.y_list, use_feat, args.output_model, args.clf)
+        clf, x_feat_names, y_labels = train(args.train, args.y_list, use_feat, args.output_model, args.clf, args.params_filename)
         if args.output_model:
             common.print_err("Saving model...")
             # joblib.dump((clf, x_feat_names, y_labels), args.output_model)

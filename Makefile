@@ -34,7 +34,7 @@ sgd.probas rf.probas gbm.probas: %.probas: $(ROOT_DIR)train.py all-features.pkl 
 	python $< -p all-features.pkl -l $*-model.pkl -s $@
 
 %-analyse: $(ROOT_DIR)train.py %-model.pkl
-	python $< -l $*-model.pkl -a -f "feature-importances"`date "+_%Y%m%d-%H%M.txt"`
+	python $< -l $*-model.pkl -a -f "feature-importances"`date "+_%Y%m%d-%H%M.txt"` --params-filename params-clf.yaml
 
 rwalks%.probas: $(ROOT_DIR)randomwalks.py $(ROOT_DIR)$(PRODUCT_CUSTOMER_EDGES_FILE) $(ROOT_DIR)$(CUSTOMERS_TEST_FILE)
 	python $^ $(RWALKS_PARAMS) -o $@
