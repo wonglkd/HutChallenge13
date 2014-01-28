@@ -2,6 +2,7 @@ import argparse
 import common
 import customer
 import splitxy
+import numpy as np
 from pprint import pprint
 from collections import Counter
 import dateutil.parser
@@ -70,9 +71,19 @@ class FeatNTransactions(Feature):
         return len(customer.get_unique_times(orders))
 
 class FeatAvgOrdersPerTransaction(Feature):
-    "Average Size of Transaction = FeatNOrders / FeatNTransactions"
+    """ Average Size of Transaction = FeatNOrders / FeatNTransactions """
     def generate_feat(self, orders):
         return len(orders) / len(customer.get_unique_times(orders))
+
+class FeatMaxOrdersPerTransaction(Feature):
+    """ Largest order size """
+    def generate_feat(self, orders):
+        return Counter(row[customer.ORDER_INDEX_TIME] for row in orders).most_common(1)[0][1]
+
+class FeatMinOrdersPerTransaction(Feature):
+    """  Smallest order size"""
+    def generate_feat(self, orders):
+        return Counter(row[customer.ORDER_INDEX_TIME] for row in orders).most_common()[-1][1]
 
 class FeatNProducts(Feature):
     """ No. of distinct products """
@@ -91,6 +102,18 @@ class FeatTimeSinceFirstOrder(Feature):
     def generate_feat(self, orders):
         mintime = dateutil.parser.parse(min(a[customer.ORDER_INDEX_TIME] for a in orders))
         return (mintime-datetime.datetime(1970,1,1)).total_seconds()
+
+class FeatTimeStdDev(Feature):
+    """ Time since first order """
+    def generate_feat(self, orders):
+        times = customer.get_unique_times(orders)
+        if len(times) < 3:
+            return 200.
+        else:
+            timevals = [dateutil.parser.parse(t) for t in times]
+            timediffs = [(y - x).total_seconds() for x, y in zip(timevals[:-1], timevals[1:])]
+            return np.std(timediffs)
+
 
 class FeatAvgIntervalBetweenTransactions(Feature):
     """ Average interval between transactions """
@@ -179,6 +202,10 @@ def get_combined():
         ('fg_NProducts', FeatNProducts()),
         ('fg_TimeSinceLastOrder', FeatTimeSinceLastOrder()),
         ('fg_TimeSinceFirstOrder', FeatTimeSinceFirstOrder()),
+        ('fg_MaxOrdersPerTransaction', FeatMaxOrdersPerTransaction()),
+        ('fg_MinOrdersPerTransaction', FeatMinOrdersPerTransaction()),
+        ('fg_TimeStdDev', FeatTimeStdDev()),
+        
         ('fg_AvgIntervalBetweenTransactions', FeatAvgIntervalBetweenTransactions()),
         ('fg_AvgIntervalBetweenProduct200', FeatAvgIntervalBetweenProduct(200)),
         ('fg_AvgIntervalBetweenProduct392', FeatAvgIntervalBetweenProduct(392)),
