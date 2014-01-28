@@ -64,18 +64,21 @@ def reweigh_dict(dct_of_dcts, factor):
         reweighted[c] = { k: v * factor for k, v in dct.iteritems() }
     return reweighted
 
-def get_predictions(probas, N=6, to_pad=None):
+def get_predictions(probas, N=6, to_pad=None, cold_start=None):
     """ Takes top 6 non-zero probabilities as labels.
         If < 6 items, pad with items from to_pad. """
     result = {}
     for customer, prob in probas.iteritems():
         ans = sorted(prob.iteritems(), key=lambda x:x[1], reverse=True)[:N]
         ans = [int(x[0]) for x in ans]
-        for item in to_pad:
-            if len(ans) >= N:
-                break
-            if item not in ans:
-                ans.append(item)
+        if not ans:
+            ans = list(cold_start)
+        else:
+            for item in to_pad:
+                if len(ans) >= N:
+                    break
+                if item not in ans:
+                    ans.append(item)
         result[customer] = ans
     return result
 
@@ -110,7 +113,10 @@ def main():
     parser.add_argument('-w', '--weights', nargs='*', type=float)
     parser.add_argument('-o', '--output', default='combined.sol')
     # parser.add_argument('-p', '--to-pad', nargs='*', type=int, default=[200,441,177,392,50,11])
-    parser.add_argument('-p', '--to-pad', nargs='*', type=int, default=[200, 316, 500, 392, 135])
+    # parser.add_argument('-p', '--to-pad', nargs='*', type=int, default=[200,392,500,328,404])
+    # parser.add_argument('-s', '--cold-start', nargs='*', type=int, default=[200,316,500,392,135])
+    parser.add_argument('-p', '--to-pad', nargs='*', type=int, default=[200,392,500,316,47])
+    parser.add_argument('-s', '--cold-start', nargs='*', type=int, default=[200,392,500,316,47])
     args = parser.parse_args()
 
     combine_func = sum
@@ -128,7 +134,7 @@ def main():
         all_probas = [reweigh_dict(p, factor) for p, factor in zip(all_probas, args.weights)]
     flattened_probas = combine(all_probas, args.customers_filename, combine_func)
 
-    result = get_predictions(flattened_probas, to_pad=args.to_pad)
+    result = get_predictions(flattened_probas, to_pad=args.to_pad, cold_start=args.cold_start)
     save_submission(result, args.output, args.customers_filename)
 
 if __name__ == "__main__":
