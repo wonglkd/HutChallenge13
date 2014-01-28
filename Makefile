@@ -8,6 +8,8 @@ CUSTOMERS_TRAIN_FILE ?= $(CUSTOMERS_FILE)
 CUSTOMERS_TEST_FILE ?= $(CUSTOMERS_FILE)
 SOL_TO_SCORE ?= sol.csv
 ACTUALS_FOR_SCORING ?= $(ROOT_DIR)interim/y-list.csv
+CUSTOMER_PRODUCT_COUNTS_FILE ?= $(ROOT_DIR)interim/products_by_test_customers_cnts.csv
+# CUSTOMER_PRODUCT_COUNTS_FILE ?= $(ROOT_DIR)interim/products_by_all_customers_cnts.csv
 
 rf: rf.probas
 gbm: gbm.probas
@@ -35,6 +37,9 @@ rf.probas gbm.probas: %.probas: $(ROOT_DIR)train.py all-features.pkl %-model.pkl
 
 rwalks%.probas: $(ROOT_DIR)randomwalks.py $(ROOT_DIR)$(PRODUCT_CUSTOMER_EDGES_FILE) $(ROOT_DIR)$(CUSTOMERS_TEST_FILE)
 	python $^ $(RWALKS_PARAMS) -o $@
+
+itembasedcf%.probas: $(ROOT_DIR)itembasedcf.py $(CUSTOMER_PRODUCT_COUNTS_FILE)
+	python $^ -o $@
 
 sol%.csv: $(ROOT_DIR)probas.py $(PROBAS_TO_COMBINE) $(ROOT_DIR)$(CUSTOMERS_TEST_FILE)
 	python $< $(PROBAS_TO_COMBINE) -c $(ROOT_DIR)$(CUSTOMERS_TEST_FILE) $(PROBAS_PARAMS) -o $@
