@@ -127,3 +127,10 @@ rec,
 (SELECT customer, MIN(t) as min_time FROM rec GROUP BY customer) a
 WHERE a.customer = rec.customer AND t = min_time;
 .output stdout
+----------
+.mode csv
+.output product_popularity_in_test.csv
+SELECT product, COUNT(*) FROM rec NATURAL JOIN subset GROUP BY product
+ORDER BY COUNT(*) DESC;
+.output stdout
+---------
