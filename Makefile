@@ -44,4 +44,4 @@ score: $(ROOT_DIR)score.py $(ACTUALS_FOR_SCORING) $(SOL_TO_SCORE) $(ROOT_DIR)$(C
 
 clean:
 	find . -name "*.npy" -maxdepth 1 -print0 | xargs -0 rm
-	rm *.pkl *.npy *.out y-list.csv
+	rm *.pkl *.npy *.out y-list.csv sol*.csv
