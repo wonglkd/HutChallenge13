@@ -19,6 +19,10 @@ def load(probas_filename):
     return cust_probas
 
 def save(probas, customer_ids, probas_filename):
+    """
+    probas: iterable of tuples of (label, val:float)
+    customer_ids: an iterable of customer ids (strings expected)
+    """
     with open(probas_filename, 'wb') as f_preds:
         for customer_id, row_probas in izip(customer_ids, probas):
             row_probas = ['"{}":{:g}'.format(label, val) for label, val in row_probas]
