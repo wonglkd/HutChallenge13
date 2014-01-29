@@ -101,7 +101,7 @@ def train(features_filename, y_filename, use_only_feat=None, save_clf=None, use_
             '_timestamp_saved': datetime.datetime.now().isoformat()
         }
         with open(params_filename, 'wb') as f:
-            yaml.dump(to_save, f)
+            yaml.dump(to_save, f, default_flow_style=False)
             # pprint(to_save, stream=f)
     
     common.print_err("Parameters used:")
