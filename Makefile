@@ -35,6 +35,9 @@ sgd-model.pkl rf-model.pkl gbm-model.pkl: %-model.pkl: $(ROOT_DIR)train.py x-fea
 sgd.probas rf.probas gbm.probas: %.probas: $(ROOT_DIR)train.py all-features.pkl %-model.pkl
 	$(EXEC_PREFIX) $< -p all-features.pkl -l $*-model.pkl -s $@
 
+sgd_direct.probas rf_direct.probas gbm_direct.probas: %_direct.probas: $(ROOT_DIR)train.py x-features.pkl y-list.csv all-features.pkl
+	$(EXEC_PREFIX) $< -t x-features.pkl -y y-list.csv -p all-features.pkl -s $@ --clf $* $(TRAIN_PARAMS) --params-filename params-clf.yaml
+
 %-analyse: $(ROOT_DIR)train.py %-model.pkl
 	$(EXEC_PREFIX) $< -l $*-model.pkl -a -f "feature-importances"`date "+_%Y%m%d-%H%M.txt"`
 
