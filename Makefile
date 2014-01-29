@@ -30,13 +30,13 @@ all-features.pkl x-features.pkl: $(ROOT_DIR)features.py all-orders.pkl x-orders.
 
 # where % = {rf, gbm, sgd}
 sgd-model.pkl rf-model.pkl gbm-model.pkl: %-model.pkl: $(ROOT_DIR)train.py x-features.pkl y-list.csv
-	$(EXEC_PREFIX) $< -t x-features.pkl -y y-list.csv -o $@ --clf $* $(TRAIN_PARAMS)
+	$(EXEC_PREFIX) $< -t x-features.pkl -y y-list.csv -o $@ --clf $* $(TRAIN_PARAMS) --params-filename params-clf.yaml
 
 sgd.probas rf.probas gbm.probas: %.probas: $(ROOT_DIR)train.py all-features.pkl %-model.pkl
 	$(EXEC_PREFIX) $< -p all-features.pkl -l $*-model.pkl -s $@
 
 %-analyse: $(ROOT_DIR)train.py %-model.pkl
-	$(EXEC_PREFIX) $< -l $*-model.pkl -a -f "feature-importances"`date "+_%Y%m%d-%H%M.txt"` --params-filename params-clf.yaml
+	$(EXEC_PREFIX) $< -l $*-model.pkl -a -f "feature-importances"`date "+_%Y%m%d-%H%M.txt"`
 
 rwalks%.probas: $(ROOT_DIR)randomwalks.py $(ROOT_DIR)$(PRODUCT_CUSTOMER_EDGES_FILE) $(ROOT_DIR)$(CUSTOMERS_TEST_FILE)
 	$(EXEC_PREFIX) $^ $(RWALKS_PARAMS) -o $@
