@@ -39,14 +39,11 @@ def train(features_filename, y_filename, use_only_feat=None, save_clf=None, use_
     params_grid = {
         'n_estimators': [100]
     }
+    # defaults
     params_fixed = {
         'rf': {
-            # 'n_estimators': 80,
-            'n_estimators': 20,
-            # 'n_estimators': 50,
-            # 'n_estimators': 20,
-            # 'n_estimators': 2,
-            # 'n_jobs': 2,
+            'n_estimators': 20, # 100, 80, 50, 20, 2
+            'n_jobs': 1,
             'max_features': 20,
             'oob_score': True,
             'verbose': 2,
