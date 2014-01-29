@@ -139,6 +139,12 @@ ORDER BY COUNT(*) DESC;
 .output customer_product_counts_all_mf.txt
 SELECT customer, product, COUNT(*) as no_of_orders FROM rec GROUP BY customer, product;
 .output stdout
+-----
+.mode list
+.separator " "
+.output customer_product_counts_all_binary_mf.txt
+SELECT customer, product, 1 as no_of_orders FROM rec GROUP BY customer, product;
+.output stdout
 -------
 .mode list
 .separator " "
@@ -146,3 +152,26 @@ SELECT customer, product, COUNT(*) as no_of_orders FROM rec GROUP BY customer, p
 SELECT customer, product, COUNT(*) as no_of_orders FROM rec NATURAL JOIN subset GROUP BY customer, product;
 .output stdout
 -----------------
+.mode list
+.separator " "
+.output customer_product_template_mf.txt
+SELECT testcustomers.customer, allproducts.product, cnts.no_of_orders FROM
+((SELECT DISTINCT customer FROM subset) testcustomers
+CROSS JOIN
+(SELECT DISTINCT product FROM rec) allproducts)
+LEFT JOIN
+(SELECT customer, product, COUNT(*) as no_of_orders FROM rec NATURAL JOIN subset GROUP BY customer, product) cnts
+ON testcustomers.customer = cnts.customer AND allproducts.product = cnts.product;
+.output stdout
+-----
+.mode list
+.separator " "
+.output customer_product_template_subset_p_mf.txt
+SELECT testcustomers.customer, allproducts.product, cnts.no_of_orders FROM
+((SELECT DISTINCT customer FROM subset) testcustomers
+CROSS JOIN
+(SELECT DISTINCT product FROM rec NATURAL JOIN subset) allproducts)
+LEFT JOIN
+(SELECT customer, product, COUNT(*) as no_of_orders FROM rec NATURAL JOIN subset GROUP BY customer, product) cnts
+ON testcustomers.customer = cnts.customer AND allproducts.product = cnts.product;
+.output stdout
