@@ -134,3 +134,15 @@ SELECT product, COUNT(*) FROM rec NATURAL JOIN subset GROUP BY product
 ORDER BY COUNT(*) DESC;
 .output stdout
 ---------
+.mode list
+.separator " "
+.output customer_product_counts_all_mf.txt
+SELECT customer, product, COUNT(*) as no_of_orders FROM rec GROUP BY customer, product;
+.output stdout
+-------
+.mode list
+.separator " "
+.output customer_product_counts_subset_mf.txt
+SELECT customer, product, COUNT(*) as no_of_orders FROM rec NATURAL JOIN subset GROUP BY customer, product;
+.output stdout
+-----------------
