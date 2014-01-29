@@ -121,7 +121,7 @@ def main():
 
     combine_func = sum
     # combine_func = partial(harmonic_mean_n, N=len(args.probas_filenames))
-    combine_func = geometric_product
+    # combine_func = geometric_product
     # doesn't work just yet
     # combine_func = scipy.stats.hmean
     # combine_func = scipy.stats.gmean
