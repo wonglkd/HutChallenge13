@@ -3,6 +3,7 @@ import customer
 import argparse
 import json
 import scipy.stats
+from collections import defaultdict
 from itertools import izip
 from functools import partial
 import numpy as np
@@ -30,6 +31,10 @@ def save(probas, customer_ids, probas_filename):
 
 
 def merge_dicts(dcts, combine_func=sum):
+    """
+    For instance, given a list of dicts (one for each method)
+    and we want to combine the probas given by different methods
+    """
     all_keys = set()
     result = {}
     for dct in dcts:
@@ -38,7 +43,18 @@ def merge_dicts(dcts, combine_func=sum):
         result[k] = combine_func(dct.get(k, 0) for dct in dcts)
     return result
 
-def combine(list_of_probas, customers_filename='data/publicChallenge.csv', combine_func=sum):
+def merge_ranklists(dcts):
+    """
+    Similar to merge_dicts, but this version combines ranking lists
+    """
+    result = defaultdict(float)
+    for dct in dcts:
+        curr_len = float(len(dct))
+        for i, (k, _) in enumerate(sorted(dct.iteritems(), reverse=True, key=lambda x:x[1])):
+            result[k] += 1. - (i / curr_len)
+    return dict(result)
+
+def combine(list_of_probas, merge_func, customers_filename='data/publicChallenge.csv'):
     # simple summation
     all_customers = set()
     for pr in list_of_probas:
@@ -54,7 +70,7 @@ def combine(list_of_probas, customers_filename='data/publicChallenge.csv', combi
             if c in probas:
                 all_probas_for_cust.append(probas[c])
         if len(all_probas_for_cust) > 1:
-            combined_for_cust = merge_dicts(all_probas_for_cust, combine_func)
+            combined_for_cust = merge_func(all_probas_for_cust)
         elif len(all_probas_for_cust) == 1:
             combined_for_cust = all_probas_for_cust[0]
         combined_probas[c] = combined_for_cust
@@ -121,22 +137,30 @@ def main():
     # parser.add_argument('-s', '--cold-start', nargs='*', type=int, default=[200,316,500,392,135])
     parser.add_argument('-p', '--to-pad', nargs='*', type=int, default=[200,392,500,316,47])
     parser.add_argument('-s', '--cold-start', nargs='*', type=int, default=[200,392,500,316,47])
+    parser.add_argument('--merge-func', choices=['dicts','ranklists'], default='ranklists')
+    parser.add_argument('--combine-func', choices=['sum','harmonic','geometric'], default='sum')
     args = parser.parse_args()
 
-    combine_func = sum
-    # combine_func = partial(harmonic_mean_n, N=len(args.probas_filenames))
-    # combine_func = geometric_product
+    if args.combine_func == "sum":
+        combine_func = sum
+    elif args.combine_func == "harmonic":
+        combine_func = partial(harmonic_mean_n, N=len(args.probas_filenames))
+    elif args.combine_func == "geometric":
+        combine_func = geometric_product
     # doesn't work just yet
     # combine_func = scipy.stats.hmean
     # combine_func = scipy.stats.gmean
-
+    if args.merge_func == "dicts":
+        merge_func = partial(merge_dicts, combine_func=combine_func)
+    elif args.merge_func == "ranklists":
+        merge_func = merge_ranklists
 
     all_probas = [load(f) for f in args.probas_filenames]
     if args.weights:
         if len(all_probas) != len(args.weights):
             raise Exception("len(all_probas) != len(arg.weights)")
         all_probas = [reweigh_dict(p, factor) for p, factor in zip(all_probas, args.weights)]
-    flattened_probas = combine(all_probas, args.customers_filename, combine_func)
+    flattened_probas = combine(all_probas, merge_func, args.customers_filename)
 
     result = get_predictions(flattened_probas, to_pad=args.to_pad, cold_start=args.cold_start)
     save_submission(result, args.output, args.customers_filename)
