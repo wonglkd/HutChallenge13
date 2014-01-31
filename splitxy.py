@@ -123,7 +123,7 @@ def main():
     elif args.splitter == 'time':
         splitter = SplitXYByTime('2013-06-00')
         min_x = 1
-        min_y = 4
+        min_y = 3
 
     X, Y, c_ids = get_split(splitter, cst, min_x, min_y)
     save(X, args.x_orders_out, Y, args.y_out, c_ids, args.customers_out)
