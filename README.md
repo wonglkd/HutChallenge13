@@ -24,7 +24,7 @@ About
 * combine the probabilities with optimised weightage
 * rank the combined probabilities to output the top 6 products
 
-See the [more detailed write-up](doc/README.pdf) `doc/README.pdf` for more information.
+See the [more detailed write-up](doc/README.pdf?raw=true) `doc/README.pdf` for more information.
 
 Usage
 =====
@@ -39,8 +39,7 @@ What's in a name?
 =================
 See http://www.comp.nus.edu.sg/~leonghw/Courses/cattywampus.html
 
-Team Cattywampus prior work: [KDD Cup] (Top 25%)
+Team Cattywampus prior work: Top 25% in [KDD Cup] 2013 by ACM KDD, Microsoft.
 
 [KDD Cup]:https://github.com/wonglkd/KDDCup13Track2/
-
 [LIBMF]:http://www.csie.ntu.edu.tw/~cjlin/libmf/
