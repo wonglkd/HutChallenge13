@@ -24,7 +24,7 @@ About
 * combine the probabilities with optimised weightage
 * rank the combined probabilities to output the top 6 products
 
-See the more detailed write-up `doc/README.pdf` for more information.
+See the [more detailed write-up](doc/README.pdf) `doc/README.pdf` for more information.
 
 Usage
 =====
