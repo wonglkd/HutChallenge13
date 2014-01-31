@@ -120,7 +120,7 @@ def main():
         splitter = SplitXYByPer()
         min_x = 1
         min_y = 1
-    elif args.spitter == 'time':
+    elif args.splitter == 'time':
         splitter = SplitXYByTime('2013-06-00')
         min_x = 1
         min_y = 4
