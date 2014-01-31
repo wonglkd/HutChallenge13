@@ -24,23 +24,24 @@ def main():
     parser = argparse.ArgumentParser(description='Calculate @MAP score')
     parser.add_argument('actuals_filename',
                         help='actuals (gold standard) csv filename (y-list.csv)')
-    parser.add_argument('preds_filename',  
-                        help='predicted csv filename (sol.csv)')
+    parser.add_argument('preds_filenames', nargs='+',
+                        help='predicted csv filename(s) (sol.csv)')
     parser.add_argument('-c', '--customers-file', default='data/publicChallenge.csv')
     parser.add_argument('-k', type=int, default=6)
     args = parser.parse_args();
 
     actuals = splitxy.load_y_with_cust(args.actuals_filename)
-    preds = probas.load_submission_i(args.preds_filename, args.customers_file)
+    for pred_filename in args.preds_filenames:
+        preds = probas.load_submission_i(pred_filename, args.customers_file)
 
-    customers = customer.load_ids(args.customers_file)
-    common.print_err("No. of total customers = {}".format(len(customers)))
-    # if len(actuals) != len(customers):
-    #     common.print_err("No. of predictions != customers.")
+        customers = customer.load_ids(args.customers_file)
+        # common.print_err("No. of total customers = {}".format(len(customers)))
+        # if len(actuals) != len(customers):
+            # common.print_err("No. of predictions != customers.")
 
-    actuals_preds = align_preds_actuals(preds, actuals)
+        actuals_preds = align_preds_actuals(preds, actuals)
 
-    print "MAP@{K} = {mapk}".format(K=args.k, mapk=map_k(actuals_preds, args.k))
+        print pred_filename, "MAP@{K} = {mapk}".format(K=args.k, mapk=map_k(actuals_preds, args.k))
 
 def apk(actuals, preds, k):
     """ Average Precision @ K """
@@ -66,7 +67,7 @@ def apk(actuals, preds, k):
 def map_k(actuals_preds_iter, k):
     """ Mean Average Precision @ K """
     aps = [apk(a,p,k) for a, p in actuals_preds_iter]
-    common.print_err("No. of predictions evaluated = {}".format(len(aps)))
+    # common.print_err("No. of predictions evaluated = {}".format(len(aps)))
     return np.mean(aps)
 
 if __name__ == '__main__':
