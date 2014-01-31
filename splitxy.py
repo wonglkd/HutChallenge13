@@ -39,12 +39,19 @@ class SplitXYByPer(SplitXYByTime):
         splitting_time = times[len(times) - times_to_take]
         return SplitXYByTime.split(self, customer_records, splitting_time)
 
-def get_split_i(splitter, customer_ids):
+def get_split_i(splitter, customer_ids, min_x, min_y):
     for customer_id, customer_records in customer.get_mult_records_i(customer_ids):
         if len(customer.get_unique_times(customer_records)) < 2:
             common.print_err("Skipped:", customer_id)
             continue
         x_orders_set, y_row = splitter.split(customer_records)
+        if len(x_orders_set) < min_x:
+            common.print_err("Skipped due to x too small: {} ({})".format(customer_id, len(x_orders_set)))
+            continue
+        if len(y_row) < min_y:
+            common.print_err("Skipped due to y too small: {} ({})".format(customer_id, len(y_row)))
+            continue
+            
         yield customer_id, x_orders_set, y_row
         # print customer_id
         # pprint(customer_records)
@@ -93,16 +100,9 @@ def main():
     parser.add_argument("-x", "--x-orders-out", nargs='?', default="x-orders.pkl")
     parser.add_argument("-y", "--y-out", nargs='?', default="y-list.csv")
     parser.add_argument("-c", "--customers-out", nargs='?', default="customers-split-used.out")
+    parser.add_argument("-s", "--splitter", choices=['time','percent'], default='time')
     
     args = parser.parse_args()
-
-    splitter = SplitXYByPer()
-    #splitter = SplitXYByTime('2013-03-00')
-    
-    #pprint(splitter.split(customer.get_records(270074)))
-    #pprint(splitter.split(customer.get_records(100)))
-    # pprint(splitter.split(customer.get_records(1)))
-    #pprint(splitter.split(customer.get_records(270081)))
 
     cst = (int(customer_id)
            for customer_id
@@ -110,9 +110,23 @@ def main():
     # cst = [1,2,100,270074,270081]
     # cst = [1,5]
 
-    X, Y, c_ids = get_split(splitter, cst)
-    save(X, args.x_orders_out, Y, args.y_out, c_ids, args.customers_out)
+    #splitter = SplitXYByTime('2013-03-00')
+    #pprint(splitter.split(customer.get_records(270074)))
+    #pprint(splitter.split(customer.get_records(100)))
+    # pprint(splitter.split(customer.get_records(1)))
+    #pprint(splitter.split(customer.get_records(270081)))
 
+    if args.splitter == 'percent':
+        splitter = SplitXYByPer()
+        min_x = 1
+        min_y = 1
+    elif args.spitter == 'time':
+        splitter = SplitXYByTime('2013-06-00')
+        min_x = 1
+        min_y = 4
+
+    X, Y, c_ids = get_split(splitter, cst, min_x, min_y)
+    save(X, args.x_orders_out, Y, args.y_out, c_ids, args.customers_out)
 
 if __name__ == '__main__':
     main()
