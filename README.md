@@ -43,4 +43,4 @@ Team Cattywampus prior work: [KDD Cup] (Top 25%)
 
 [KDD Cup]:https://github.com/wonglkd/KDDCup13Track2/
 
-[LIBMF]:(http://www.csie.ntu.edu.tw/~cjlin/libmf/
+[LIBMF]:http://www.csie.ntu.edu.tw/~cjlin/libmf/
