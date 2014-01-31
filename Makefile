@@ -6,8 +6,9 @@ PRODUCT_CUSTOMER_EDGES_FILE ?= interim/customer_product_counts.csv
 CUSTOMERS_TRAIN_FILE ?= $(CUSTOMERS_FILE)
 # CUSTOMERS_TRAIN_FILE ?= data/all_customers.csv
 CUSTOMERS_TEST_FILE ?= $(CUSTOMERS_FILE)
-SOL_TO_SCORE ?= sol.csv
-ACTUALS_FOR_SCORING ?= $(ROOT_DIR)interim/y-list.csv
+SOL_TO_SCORE ?= sol*.csv
+# ACTUALS_FOR_SCORING ?= $(ROOT_DIR)interim/y-list.csv
+ACTUALS_FOR_SCORING ?= $(ROOT_DIR)interim/timesplit_limited-ylist.csv
 CUSTOMER_PRODUCT_COUNTS_FILE ?= $(ROOT_DIR)interim/products_by_test_customers_cnts.csv
 # CUSTOMER_PRODUCT_COUNTS_FILE ?= $(ROOT_DIR)interim/products_by_all_customers_cnts.csv
 
