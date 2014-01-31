@@ -20,7 +20,7 @@ sgd: sgd.probas
 .SECONDARY: rf-model.pkl gbm-model.pkl
 
 x-orders.pkl y-list.csv x-customers-used.out x-skipped.out: $(ROOT_DIR)splitxy.py $(ROOT_DIR)$(CUSTOMERS_TRAIN_FILE)
-	$(EXEC_PREFIX) $^ -x x-orders.pkl -y y-list.csv -c x-customers-used.out 2> x-skipped.out
+	$(EXEC_PREFIX) $^ -x x-orders.pkl -y y-list.csv -c x-customers-used.out $(SPLIT_PARAMS) 2> x-skipped.out
 
 all-orders.pkl all-customers-used.out: $(ROOT_DIR)customer.py $(ROOT_DIR)$(CUSTOMERS_TEST_FILE)
 	$(EXEC_PREFIX) $^ -o all-orders.pkl -c all-customers-used.out
