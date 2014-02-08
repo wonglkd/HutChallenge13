@@ -33,7 +33,7 @@ cd runs/2014-reproduce-rf-0.02
 make rf-analyse
 ```
 
-Replace {TIMESTAMP} in the below command before running it
+Replace `{TIMESTAMP}` in the below command before running it
 to extract the top 500 features.
 
 ```
@@ -43,14 +43,15 @@ head -n 501 feature-importances_{TIMESTAMP}.txt | tail -n 500 > feature-importan
 Open the file `runs/2014-reproduce-rf-all/Makefile` and modify the second line of the file
 to replace it with `../2014-reproduce-rf-0.02/feature-importances_{TIMESTAMP}-top500.txt`.
 
-Subsequently, run the random classifier. Note: classification and prediction
-took ~35 mins and ~6 mins respectively on a 2.6 GHz Intel Core i5 with 16 GB of
-RAM and SSD. Parallel processing is turned off by default due to instability
-issues encountered, due to suspected inefficiencies with joblib's multithreading
-function resulting in combination of multiple trees taking an extraordinary
-amount of time on the typical laptop. We were however successfully able to
-utilise parallel processing on a EC2 server, possibly because of the greater RAM
-available.
+Subsequently, run the random classifier.
+
+> Note: classification and prediction took ~35 mins and ~6 mins respectively on
+> a 2.6 GHz Intel Core i5 with 16 GB of RAM and SSD. Parallel processing is
+> turned off by default due to instability issues encountered, due to suspected
+> inefficiencies with joblib's multithreading function resulting in combination
+> of multiple trees taking an extraordinary amount of time on the typical
+> laptop. We were however successfully able to utilise parallel processing on a
+> EC2 server, possibly because of the greater RAM available.
 
 ```
 cd runs/2014-reproduce-rf-all
