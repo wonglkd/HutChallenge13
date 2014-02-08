@@ -1,0 +1,15 @@
+_timestamp_saved: '2014-02-08T00:15:43.311469'
+rf:
+  bootstrap: true
+  compute_importances: null
+  criterion: gini
+  max_depth: null
+  max_features: 20
+  min_density: null
+  min_samples_leaf: 1
+  min_samples_split: 2
+  n_estimators: 80
+  n_jobs: 1
+  oob_score: true
+  random_state: 101
+  verbose: 2
