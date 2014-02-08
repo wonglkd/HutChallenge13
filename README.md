@@ -28,12 +28,16 @@ See the [more detailed write-up](doc/README.pdf?raw=true) `doc/README.pdf` for m
 
 Usage
 =====
-Forthcoming.
+See [USAGE.md](USAGE.md) for more information.
 
 Prerequisites
 =============
 * Python 2.6+
 * scikit-learn 0.14.1+
+* yaml (3.10 was used)
+* numpy (1.7.1 was used)
+* scipy (0.13.2 was used)
+* matplotlib (optional; for plotting feature importance graph; 1.3.1 was used)
 
 What's in a name?
 =================
