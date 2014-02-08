@@ -14,9 +14,11 @@ Quick start
 -----------
 Ensure that the db file has been placed in the right directory: see section INSTALL.
 
-To re-generate a solution using approximately the same parameters, run:
+You can use the following instructions to generate a solution using
+approximately the same parameters as our best submission.
 
-Generate the probabilities from conducting random walks on the product-customer graph
+Generate the probabilities from conducting random walks on the product-customer
+graph:
 
 ```
 cd runs/2014-reproduce-rw
@@ -41,13 +43,14 @@ head -n 501 feature-importances_{TIMESTAMP}.txt | tail -n 500 > feature-importan
 Open the file `runs/2014-reproduce-rf-all/Makefile` and modify the second line of the file
 to replace it with `../2014-reproduce-rf-0.02/feature-importances_{TIMESTAMP}-top500.txt`.
 
-Subsequently, run the random classifier.
-Note: this takes ~1 hour on a 2.6 GHz Intel Core i5 with 16 GB of RAM and SSD.
-Parallel processing is turned off by default due to instability issues encountered, due to
-suspected inefficiencies with joblib's multithreading function resulting in
-combination of multiple trees taking an extraordinary amount of time on the typical
-laptop. We were however successfully able to utilise parallel processing on a EC2 server,
-possibly because of the greater RAM available.
+Subsequently, run the random classifier. Note: classification and prediction
+took ~35 mins and ~6 mins respectively on a 2.6 GHz Intel Core i5 with 16 GB of
+RAM and SSD. Parallel processing is turned off by default due to instability
+issues encountered, due to suspected inefficiencies with joblib's multithreading
+function resulting in combination of multiple trees taking an extraordinary
+amount of time on the typical laptop. We were however successfully able to
+utilise parallel processing on a EC2 server, possibly because of the greater RAM
+available.
 
 ```
 cd runs/2014-reproduce-rf-all
@@ -94,10 +97,13 @@ There are two types of experiment directories, and thus Makefiles, present.
 Setting up a new experiment
 ---------------------------
 1. Make a new experiment directory in runs.
-2. Create a Makefile for the directory. We recommend copying an existing Makefile and modifying it to suit your needs.
+2. Create a Makefile for the directory. We recommend copying an existing
+Makefile and modifying it to suit your needs.
 
     Sample Makefiles to copy from:
     - `runs/2014-01-21-rf-0.02/Makefile` (2% of dataset)
     - `runs/2014-01-21-rf-all/Makefile`
     
-3. If running a classification-type Makefile, it is possible to specify the parameters through the file `params-clf.yaml`. If it does not exist, it will automatically be created with the default settings when you run the classifier.
+3. If running a classification-type Makefile, it is possible to specify the
+parameters through the file `params-clf.yaml`. If it does not exist, it will
+automatically be created with the default settings when you run the classifier.
