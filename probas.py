@@ -137,7 +137,7 @@ def main():
     # parser.add_argument('-s', '--cold-start', nargs='*', type=int, default=[200,316,500,392,135])
     parser.add_argument('-p', '--to-pad', nargs='*', type=int, default=[200,392,500,316,47])
     parser.add_argument('-s', '--cold-start', nargs='*', type=int, default=[200,392,500,316,47])
-    parser.add_argument('--merge-func', choices=['dicts','ranklists'], default='ranklists')
+    parser.add_argument('--merge-func', choices=['dicts','ranklists'], default='dicts')
     parser.add_argument('--combine-func', choices=['sum','harmonic','geometric'], default='sum')
     args = parser.parse_args()
 

@@ -100,7 +100,7 @@ def main():
     parser.add_argument("-x", "--x-orders-out", nargs='?', default="x-orders.pkl")
     parser.add_argument("-y", "--y-out", nargs='?', default="y-list.csv")
     parser.add_argument("-c", "--customers-out", nargs='?', default="customers-split-used.out")
-    parser.add_argument("-s", "--splitter", choices=['time','percent'], default='time')
+    parser.add_argument("-s", "--splitter", choices=['time','percent'], default='percent')
     
     args = parser.parse_args()
 
