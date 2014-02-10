@@ -71,13 +71,14 @@ This should yield you a solution CSV file.
 How our best submission was produced
 ------------------------------------
 
-Our best submission (0.165777) was produced as follows:
+Our best submission (0.165777, [e324d31]) was produced as follows:
 ```
 cd runs/2014-01-24-quick
 make
 ```
 
 This generated the submission file `sol_w_0.55__0.45_2.csv` by combining probabilites from:
+
 1. Random Forest classifier (`2014-01-21-rf-all/rf.probas`)
 2. Random walks (`2014-01-23-score-rw/walklen_1__nwalks_500.probas`)
 
@@ -108,3 +109,5 @@ Makefile and modifying it to suit your needs.
 3. If running a classification-type Makefile, it is possible to specify the
 parameters through the file `params-clf.yaml`. If it does not exist, it will
 automatically be created with the default settings when you run the classifier.
+
+[e324d31]:https://github.com/wonglkd/HutChallenge13/commit/e324d311a1a31392f319a5ec82036a74fdf3d66d
