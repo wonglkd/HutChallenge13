@@ -14,7 +14,7 @@ About
 * matrix factorisation using [LIBMF]^
 * (planned) SGD / other linear classifiers
 
-^ _not used in highest-scoring submission._
+^ _not used in highest-scoring submission ([e324d31])._
 
 **Predictions for each customer**
 * Cold start
@@ -47,3 +47,4 @@ Team Cattywampus prior work: Top 25% in [KDD Cup] 2013 by ACM KDD, Microsoft.
 
 [KDD Cup]:https://github.com/wonglkd/KDDCup13Track2/
 [LIBMF]:http://www.csie.ntu.edu.tw/~cjlin/libmf/
+[e324d31]:https://github.com/wonglkd/HutChallenge13/commit/e324d311a1a31392f319a5ec82036a74fdf3d66d
