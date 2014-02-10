@@ -2,7 +2,7 @@ HutChallenge13
 ==============
 * By **Team Cattywampus.**
     * (see bottom of file for team name explanation)
-* An entry for the Hut Challenge, a competition organised by The Hut Group.
+* An entry for the [Hut Challenge], a competition organised by [The Hut Group].
 * Timeframe: 01 Dec 2013 - 31 Jan 2014.
 
 About
@@ -24,11 +24,11 @@ About
 * combine the probabilities with optimised weightage
 * rank the combined probabilities to output the top 6 products
 
-See the [more detailed write-up](doc/README.pdf?raw=true) `doc/README.pdf` for more information.
+See the more detailed write-up [doc/README.pdf] for more information.
 
 Usage
 =====
-See [USAGE.md](USAGE.md) for more information.
+See [USAGE.md] for more information.
 
 Prerequisites
 =============
@@ -37,14 +37,19 @@ Prerequisites
 * yaml (3.10 was used)
 * numpy (1.7.1 was used)
 * scipy (0.13.2 was used)
-* matplotlib (optional; for plotting feature importance graph; 1.3.1 was used)
+* matplotlib (optional, for plotting feature importance graph; 1.3.1 was used)
 
 What's in a name?
 =================
 See http://www.comp.nus.edu.sg/~leonghw/Courses/cattywampus.html
 
-Team Cattywampus prior work: Top 25% in [KDD Cup] 2013 by ACM KDD, Microsoft.
+Team Cattywampus prior work: Top 25% in [KDD Cup 2013] by ACM SIGKDD, Microsoft & Kaggle ([KDD Cup repository]).
 
-[KDD Cup]:https://github.com/wonglkd/KDDCup13Track2/
+[Hut Challenge]:http://www.thehutchallenge.com/
+[The Hut Group]:http://www.thehutgroup.com/
+[KDD Cup 2013]:http://www.kaggle.com/c/kdd-cup-2013-author-disambiguation
+[KDD Cup repository]:https://github.com/wonglkd/KDDCup13Track2/
 [LIBMF]:http://www.csie.ntu.edu.tw/~cjlin/libmf/
 [e324d31]:https://github.com/wonglkd/HutChallenge13/commit/e324d311a1a31392f319a5ec82036a74fdf3d66d
+[USAGE.md]:USAGE.md
+[doc/README.pdf]:doc/README.pdf?raw=true
